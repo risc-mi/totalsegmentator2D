@@ -1,8 +1,6 @@
 # TotalSegmentator 2D: A Tool for Rapid Anatomical Structure Analysis
 > ⚠️ **Note:** This is a preview version and may be incomplete or subject to changes.
 
-
-
 ## About
 
 **TotalSegmentator 2D (TS2D)** is a tool for fast and efficient anatomical structure segmentation and analysis. **TS2D** is built upon the **TotalSegmentator** dataset and tool, but adopts a 2D projection approach to enable rapid inference and reduced resource consumption. It is designed to segment a variety of anatomical structures in medical images and supports a broad range of applications. The resulting segmentations are used to infer the presence of specific anatomical structures within the image.
