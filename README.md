@@ -15,7 +15,7 @@ _Figure 1: Overview of our method. The volumetric scan ($I_{3D}$) and ground-tru
 
 # Method
 
-TS2D uses coronal projection images generated through maximum and average intensity projection for the segmentation of anatomical structures. The two-channel input is processed by a 2D U-Net, implemented using an adapted nnU-Net framework to support multi-label output and thus correctly handle overlapping structures (see Figure 1). The method was trained on the TotalSegmentator v1 dataset, which provides 104 anatomical labels across 1204 CT scans. The task was divided among five models, each trained on a distinct group of anatomical structures (see Figure 2). 
+TS2D uses coronal projection images generated through maximum and average intensity projection for the segmentation of anatomical structures. The two-channel input is processed by a 2D U-Net, implemented using our [adapted nnU-Net framework](https://github.com/risc-mi/nnUNet-multilabel/blob/main/readme.md) to support multi-label output and thus correctly handle overlapping structures (see Figure 1). The method was trained on the TotalSegmentator v1 dataset, which provides 104 anatomical labels across 1204 CT scans. The task was divided among five models, each trained on a distinct group of anatomical structures (see Figure 2). 
 
 
 <img src="assets/examples.png" alt="Example segmentation results and DSC scores." style="max-width: 600px; width: 100%;">
