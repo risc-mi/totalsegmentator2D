@@ -53,7 +53,7 @@ Our following publications are related to the development and application of **T
 
 
 * Our earlier work on body-region segmentation for an industrial usecase:
-  * _[AIROV2025]_ **Brain Artery Segmentation for Structural MRI**\
+  * _[AIROV2025]_ **Efficient Automatic Detection of Scanned Body Regions in CT Scans**\
   **Accepted** at Austrian Symposium on AI, Robotics, and Vision (AIRoV) Conference 2025\
    Full Reference: `Sabrowsky-Hirsch, Bertram, et al. “Efficient Automatic Detection of Scanned Body Regions in CT Scans.” In Proceedings of the Joint Austrian Computer Vision and Robotics Workshop 2025. Verlag der TU Graz (2025).`
 
