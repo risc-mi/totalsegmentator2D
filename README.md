@@ -41,13 +41,13 @@ We evaluated TS2D against projected ground-truth labels and compared its perform
 Our following publications are related to the development and application of **TS2D**:
 
 * Original publication introducing TS2D:
-  * _[MIUA2024a]_ **Towards Segmenting Cerebral Arteries from Structural MRI**\
+  * _[MIUA2024a]_ **TotalSegmentator 2D: A Tool for Rapid Anatomical Structure Analysis**\
   **Accepted** at Medical Image Understanding and Analysis (MIUA) Conference 2025\
   Full Reference: `Alshenoudy, A., Sabrowsky-Hirsch, B., Thumfart, S., Giretzlehner, M. (2025).  TotalSegmentator 2D (TS2D): A Tool for Rapid Anatomical Structure Analysis. Medical Image Understanding and Analysis 2025 (MIUA 2025). Springer Nature.`
 
 
 * TS2D extended to the segmentation of X-Ray images:
-  * _[MIUA2024b]_ **Robust Multi-Modal Registration of Cerebral Vasculature**\
+  * _[MIUA2024b]_ **Leveraging Synthetic Data for Whole-Body Segmentation in X-ray Images**\
   **Accepted** at Medical Image Understanding and Analysis (MIUA) Conference 2025\
    Full Reference: `Alshenoudy, A., Sabrowsky-Hirsch, B., Thumfart, S., Giretzlehner, M. (2025). Leveraging Synthetic Data for Whole-Body Segmentation in X-Ray Images. Medical Image Understanding and Analysis 2025.`
 
