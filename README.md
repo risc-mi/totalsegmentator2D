@@ -43,7 +43,7 @@ Our following publications are related to the development and application of **T
 * Original publication introducing TS2D:
   * _[MIUA2024a]_ **TotalSegmentator 2D: A Tool for Rapid Anatomical Structure Analysis**\
   **Accepted** at Medical Image Understanding and Analysis (MIUA) Conference 2025\
-  Full Reference: `Alshenoudy, A., Sabrowsky-Hirsch, B., Thumfart, S., Giretzlehner, M. (2025).  TotalSegmentator 2D (TS2D): A Tool for Rapid Anatomical Structure Analysis. Medical Image Understanding and Analysis 2025 (MIUA 2025). Springer Nature.`
+  Full Reference: `Sabrowsky-Hirsch, B., Alshenoudy, A., Thumfart, S., Giretzlehner, M. (2025).  TotalSegmentator 2D (TS2D): A Tool for Rapid Anatomical Structure Analysis. Medical Image Understanding and Analysis 2025 (MIUA 2025). Springer Nature.`
 
 
 * TS2D extended to the segmentation of X-Ray images:
