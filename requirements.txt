@@ -1,0 +1,4 @@
+SimpleITK
+psutil
+gdown
+./libs/nnUNet-multilabel
