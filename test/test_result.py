@@ -4,14 +4,14 @@ from time import time, sleep
 
 from test.utils import get_asset_path
 from ts2d import TS2D
-from ts2d.core.util.config import get_test_model
+from ts2d.core.util.config import get_test_model_single
 from ts2d.core.util.image import read_image
 import SimpleITK as sitk
 import pytest
 
 @pytest.fixture
 def result():
-    with TS2D(key=get_test_model(), fetch_remote=False) as model:
+    with TS2D(key=get_test_model_single(), fetch_remote=False) as model:
         img = read_image(get_asset_path('sample_s0521.nrrd'))
         return model.predict(img)
 

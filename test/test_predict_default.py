@@ -2,14 +2,14 @@ from time import time, sleep
 
 from test.utils import get_asset_path
 from ts2d import TS2D
-from ts2d.core.util.config import get_test_model
+from ts2d.core.util.config import get_test_model_single
 from ts2d.core.util.image import read_image
 import SimpleITK as sitk
 import pytest
 
 @pytest.fixture
 def model():
-    key = get_test_model()
+    key = get_test_model_single()
     model = TS2D(key=key, fetch_remote=False)
     yield model
     model.close()

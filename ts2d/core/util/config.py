@@ -22,7 +22,7 @@ def get_label_colors():
 
 def _get_github_shared_urls():
     try:
-        url = "https://github.com/risc-mi/totalsegmentator2D/blob/main/ts2d/data/shared.json"
+        url = "https://raw.githubusercontent.com/risc-mi/totalsegmentator2D/refs/heads/main/ts2d/data/shared.json"
         import requests
         r = requests.get(url)
         if not r.ok:
@@ -55,8 +55,11 @@ def get_config():
 def get_default_model():
     return get_config()['default-model']
 
-def get_test_model():
-    return get_config()['default-test-model']
+def get_test_model_single():
+    return get_config()['default-test-model-single']
+
+def get_test_model_multi():
+    return get_config()['default-test-model-multi']
 
 def get_model_resolve_map():
     return get_config()['default-resolve']
