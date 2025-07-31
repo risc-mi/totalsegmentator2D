@@ -157,6 +157,10 @@ class NNUProcessModel(NNUModel):
         if verbose is not None:
             kwargs['verbose'] = verbose
             kwargs['allow_tqdm'] = verbose
+        import torch
+        if not torch.cuda.is_available():
+            kwargs['device'] = torch.device('cpu')
+            kwargs['perform_everything_on_device'] = False
         predictor = nnUNetPredictor(**kwargs)
         predictor.initialize_from_trained_model_folder(model, folds, checkpoint)
         return predictor

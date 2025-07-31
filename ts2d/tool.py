@@ -228,7 +228,8 @@ class TS2D:
                 return projections.get(channel)
             return projections
 
-        def save(self, dest: str, name: str = 'result', ext: str = 'nrrd',
+        def save(self,
+                 dest: str, name: str = 'result', ext: str = 'nrrd',
                  models: str | List[str] = 'all',
                  targets: str | List[str] = 'all',
                  content: str = 'all',

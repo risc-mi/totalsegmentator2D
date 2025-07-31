@@ -1,4 +1,8 @@
 # TotalSegmentator 2D: A Tool for Rapid Anatomical Structure Analysis
+> ⚠️ **Update:** The TS2D models [MIUA2025a] have been published with version 1.0.0!
+
+> ⚠️ **Note:** The X-Ray models [MIUA2025b] will be released soon, stay tuned!
+
 > ⚠️ **Note:** This is a preview version and may be incomplete or subject to changes.
 
 ## About
@@ -31,37 +35,74 @@ We evaluated TS2D against projected ground-truth labels and compared its perform
 |    TS3D     | 0.97    | 0.97            | 0.97                  |           43–146 secs            |
 
 
-
 ## Usage
 
 ### Setup
 
 TS2D has been tested with **Python 3.12** and Pytorch 2.7.1 (CUDA 11.8) on a **Windows 11** system.
 We recommend installing PyTorch in your environment **before installing TS2D**. Ensure you set up PyTorch with the correct CUDA version for your system and PyTorch release. For installation instructions, see the [PyTorch documentation](https://pytorch.org/get-started/locally/).
-After setting up PyTorch, install TS2D with pip: `pip install .`
+After setting up PyTorch, install TS2D with pip: `pip install .` on your clone of the repository or run `pip install git+https://github.com/risc-mi/totalsegmentator2D.git`.
 
-### Demo
+### Get Started
 
+You can run TS2D using the Command line interface (CLI):
+
+`python -m ts2d -i <input_image> -o <output_directory>`
+
+or alternatively, you can use the API to run TS2D in your Python scripts:
+
+```
+from ts2d import TS2D
+with TS2D() as model:
+    result = model.predict('<input_image>')
+    result.save(dest='<output_directory>')
+```
+
+TS2D will project the input image, run the segmentation models and save a multilabel segmentation file to the output directory.
+The segmentation labels can be parsed from the metadata, to view the segmentation use e.g. 3D Slicer to view the results.
+For more information, refer to the CLI help or the API documentation.
+
+### Model overview
+
+The following models are available in TS2D have been published and can be specified using the `--model` argument in the CLI or the `key` parameter in the API:
+
+| Model | Dataset | Configuration |   Group   |          Model ID          | Test Dice |
+|:-----:|:-------:|:-------------:|:---------:|:--------------------------:|:---------:|
+| TS2D  |   v1    |   ep4000b2    |  cardiac  |  ts2d-v1-ep4000b2_cardiac  |   0.77    |
+|       |         |               |  muscles  |  ts2d-v1-ep4000b2_muscles  |   0.93    |
+|       |         |               |  organs   |  ts2d-v1-ep4000b2_organs   |   0.78    |
+|       |         |               |   ribs    |   ts2d-v1-ep4000b2_ribs    |   0.89    |
+|       |         |               | vertebrae | ts2d-v1-ep4000b2_vertebrae |   0.90    |
+|       |         |   ep10000b2   |   bones   |  ts2d-v1-ep10000b2_bones   |   0.88    |
+|       |         |               |   soft    |   ts2d-v1-ep10000b2_soft   |   0.81    |
+
+
+Models are specified using a key (e.g., `ts2d`), which can resolve to one or more model IDs (e.g., `ts2d-v1-ep4000b2_organs`).  
+A model ID follows the structure `<model>-<dataset>-<configuration>_<group>`. For example, `ts2d-v1-ep4000b2_organs` refers to the TS2D model trained on the TotalSegmentator v1 dataset, with 4000 epochs, batch size 2, for the organ group.  
+Model keys can be abbreviated to match multiple models; for instance, `ts2d-v1-ep4000b2` includes all anatomical groups in that configuration. If only `ts2d` is specified, default models are used.
+
+TS2D runs all models matching the specified key and merges their outputs into a single segmentation.  
+The default model key is `ts2d-v1-ep4000b2`, which includes the five anatomical group models in this configuration.
 
 ## Publications
 
 Our following publications are related to the development and application of **TS2D**:
 
 * Original publication introducing TS2D:
-  * _[MIUA2024a]_ **TotalSegmentator 2D: A Tool for Rapid Anatomical Structure Analysis**\
-  **Accepted** at Medical Image Understanding and Analysis (MIUA) Conference 2025\
+  * _[MIUA2025a]_ **TotalSegmentator 2D: A Tool for Rapid Anatomical Structure Analysis**\
+  **Presented** at Medical Image Understanding and Analysis (MIUA) Conference 2025\
   Full Reference: `Sabrowsky-Hirsch, B., Alshenoudy, A., Thumfart, S., Giretzlehner, M. (2025).  TotalSegmentator 2D (TS2D): A Tool for Rapid Anatomical Structure Analysis. Medical Image Understanding and Analysis 2025 (MIUA 2025). Springer Nature.`
 
 
 * TS2D extended to the segmentation of X-Ray images:
-  * _[MIUA2024b]_ **Leveraging Synthetic Data for Whole-Body Segmentation in X-ray Images**\
-  **Accepted** at Medical Image Understanding and Analysis (MIUA) Conference 2025\
+  * _[MIUA2025b]_ **Leveraging Synthetic Data for Whole-Body Segmentation in X-ray Images**\
+  **Presented** at Medical Image Understanding and Analysis (MIUA) Conference 2025\
    Full Reference: `Alshenoudy, A., Sabrowsky-Hirsch, B., Thumfart, S., Giretzlehner, M. (2025). Leveraging Synthetic Data for Whole-Body Segmentation in X-Ray Images. Medical Image Understanding and Analysis 2025.`
 
 
 * Our earlier work on body-region segmentation for an industrial usecase:
   * _[AIROV2025]_ **Efficient Automatic Detection of Scanned Body Regions in CT Scans**\
-  **Accepted** at Austrian Symposium on AI, Robotics, and Vision (AIRoV) Conference 2025\
+  **Presented** at Austrian Symposium on AI, Robotics, and Vision (AIRoV) Conference 2025\
    Full Reference: `Sabrowsky-Hirsch, Bertram, et al. “Efficient Automatic Detection of Scanned Body Regions in CT Scans.” In Proceedings of the Joint Austrian Computer Vision and Robotics Workshop 2025. Verlag der TU Graz (2025).`
 
 
@@ -85,3 +126,7 @@ If you have any inquiries, please open a GitHub issue.
 </div>
 
 This project is financed by research subsidies granted by the government of Upper Austria. RISC Software GmbH is Member of UAR (Upper Austrian Research) Innovation Network.
+
+### Versions
+
+- v1.0.0: first release of TS2D including the [MIUA2025a] models.

@@ -14,6 +14,9 @@ authors = [
 urls = { Homepage = "https://github.com/risc-mi/totalsegmentator2D" }
 requires-python = ">=3.12"
 dependencies = [
+    "torch~=2.7.0",
+    "torchvision",
+    "torchaudio",
     "simpleitk~=2.5.2",
     "pandas~=2.3.1",
     "gdown~=5.2.0",
