@@ -27,5 +27,8 @@ jobs:
           pip install ./libs/nnUNet-multilabel
           pip install pytest
 
+      - name: Check environment
+        run: pip list
+
       - name: Run tests
-        run: pytest test
+        run: pytest test --capture=no
