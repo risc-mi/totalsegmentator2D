@@ -129,3 +129,12 @@ def unit_vector(v, axis=-1, div0=np.nan):
     if reorder:
         v = np.moveaxis(v, 0, axis)
     return v
+
+def is_nnunet_multilabel():
+    try:
+        from nnunetv2 import multilabel
+        return multilabel
+    except ModuleNotFoundError:
+        raise RuntimeError("nnunetv2 is not installed")
+    except ImportError:
+        return False
