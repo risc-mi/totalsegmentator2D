@@ -144,6 +144,7 @@ def _run_worker(predictor,
                     _run_predict(predictor, task, param)
                     task.success = True
                 except Exception as e:
+                    traceback.print_exc()
                     task.error = e
                 except (KeyboardInterrupt, SystemExit):
                     # dont bother with communication
