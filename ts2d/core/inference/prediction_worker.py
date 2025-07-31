@@ -9,7 +9,7 @@ import torch.multiprocessing as mp
 from multiprocessing import current_process
 import psutil
 
-from ts2d.core.util.log import warn
+from ts2d.core.util.log import log
 from ts2d.core.util.meta import set_annotation_meta
 from ts2d.core.util.temp import SafeTemporaryDirectory
 from ts2d.core.util.util import parse_int
@@ -24,7 +24,7 @@ def _pool_initializer(**kwargs):
             return
         sys.stdout.flush()
         sleep(0.1)
-        print("Uncaught exception: [{}] {}".format(exc_type.__name__, exc_value))
+        log("Uncaught exception: [{}] {}".format(exc_type.__name__, exc_value))
         if current_process().name == 'MainProcess':
             traceback.print_exception(exc_type, exc_value, exc_traceback)
         return
@@ -123,7 +123,7 @@ def _run_worker(predictor,
             'parent': curr_p.ppid()
         }
         started.set()
-        print(f"A new worker started running ({curr_p.pid})")
+        #print(f"A new worker started running ({curr_p.pid})")
         while not abort.is_set():
             try:
                 task_id = task_queue.get()
@@ -151,18 +151,18 @@ def _run_worker(predictor,
                 finally:
                     task.timestamps['done'] = time()
                     task.done = True
-                    if task_id != 'startup':
-                        with done:
-                            # update the task result
-                            tasks[task.id] = task
-                            done.notify()
-                    else:
+                    if task_id == 'startup':
                         try:
                             task.temp.cleanup()
                             task.temp = None
                         except:
                             # not critical if the cleanup fails
                             pass
+                    with done:
+                        # update the task result
+                        tasks[task_id] = task
+                        done.notify()
+
             else:
                 print("A submitted task id was not found by the worker...", file=sys.stderr)
     except (KeyboardInterrupt, SystemExit) as ex:

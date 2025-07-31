@@ -15,13 +15,27 @@ from ts2d.core.util.types import default, as_set, dict_merge
 from ts2d.core.util.util import parse_int, removeprefix, rmdirs, removeall, isemptydir, format_array
 
 
+def decompose_model_key(key: str):
+    """
+    returns the model and group from a model key
+    """
+    model, group = key.rsplit('_', maxsplit=1) if '_' in key else (key, None)
+    return model, group
+
 def _describe_model(**kwargs):
-    model = kwargs['model']
+    key = kwargs.get('key')
+    if key is not None:
+        model, group = decompose_model_key(key)
+    else:
+        model = kwargs['model']
+        group = kwargs.get('group')
     revision = kwargs.get('revision')
     folds = kwargs.get('folds')
-    return ''.join((['{}'.format(model)]
-                    + ([] if revision is None else [' at {}'.format(_revision_str(revision))]))
-                   + ([] if folds is None else [' (folds: {})'.format(', '.join(str(f) for f in folds))]))
+    return ''.join(([f"{model}"]
+                    + ([] if group is None else [f" for {group}"])
+                    + ([] if revision is None else [f" at {_revision_str(revision)}"]))
+                    + ([] if folds is None else [f"(folds: {', '.join(str(f) for f in folds)}"])
+                    + ([] if key is None else [f"(key: {key})"]))
 
 def _revision_str(revision: int):
     return 'r{:03d}'.format(revision) if isinstance(revision, int) else revision
@@ -31,20 +45,39 @@ def _parse_revision(rn: str):
 
 
 class DataBase:
-    def copy(self, dest_root, model: str, revision: Optional[int] = None):
+    def copy(self, dest_root, key: str, revision: Optional[int] = None):
         raise NotImplementedError()
 
-    def has(self, model: str, revision: Optional[int] = None):
-        return bool(self.list(model=model, revision=revision))
+    def has(self, model: str | None = None, group: str | None = None, key: str | None = None, revision: int | None = None):
+        return bool(self.list(model=model, group=group, key=key, revision=revision))
 
-    def groups(self, model: str | None = None, revision: int | None = None):
-        return sorted(set(g for (m, g, r), p in self.list(model=model, revision=revision).items()))
+    def ids(self, model: str | None = None, group: str | None = None, key: str | None = None, revision: int | None = None):
+        return sorted(set(f'{m}_{g}' for (m, g, r), p in self.list(model=model, group=group, key=key, revision=revision).items()))
 
-    def revisions(self, model: str | None = None) -> list:
-        return sorted(set(r for (m, g, r), p in self.list(model=model).items()))
+    def get(self, model: str | None = None, group: str | None = None, key: str | None = None, revision: int | None = None) -> dict:
+        """
+        returns the details for the first model found in the database that matches the specified parameters
+        """
+        id, (m, g, r, p) = sorted(dict((f'{m}_{g}', (m, g, r, p)) for (m, g, r), p in self.list(model=model, group=group, key=key, revision=revision).items()).items(), key=lambda t: t[0])[0]
+        return {
+            'id': id,
+            'model': m,
+            'group': g,
+            'revision': r,
+            'path': p
+        }
 
-    def latest(self, model: str | None = None) -> Optional[int]:
-        revs = self.revisions(model)
+    def models(self, group: str | None = None, revision: int | None = None, key: str | None = None):
+        return sorted(set(m for (m, g, r), p in self.list(group=group, revision=revision, key=key).items()))
+
+    def groups(self, model: str | None = None, revision: int | None = None, key: str | None = None):
+        return sorted(set(g for (m, g, r), p in self.list(model=model, revision=revision, key=key).items()))
+
+    def revisions(self, model: str | None = None, group: str | None = None, key: str | None = None) -> list:
+        return sorted(set(r for (m, g, r), p in self.list(model=model, group=group, key=key).items()))
+
+    def latest(self, model: str | None = None, group: str | None = None, key: str | None = None) -> Optional[int]:
+        revs = self.revisions(model=model, group=group, key=key)
         if not revs:
             return None
         return revs[-1]
@@ -65,17 +98,16 @@ class DataBase:
 
         return model == match
 
-    def list(self, model: Optional[str] = None, revision: Optional[int] = None):
-        model, group = model.rsplit('_', maxsplit=1) if (model is not None and '_' in model) else (model, None)
-        model = None if not model else model
-        group = None if not group else group
-        revision = None if revision is None else _revision_str(revision)
+    def list(self, model: str | None = None, group: str | None = None, key: str | None = None,  revision: str | int | None = None):
+        if key is not None:
+            model, group = decompose_model_key(key)
+        revision = _parse_revision(revision) if isinstance(revision, str) else revision
         res = dict()
         for _model, _group, _revision, _path in self._enumerate():
             if (self._match_model_str(model, _model)
                 and (revision is None or revision == _revision)
                 and (group is None or group == _group)):
-                res[(_model, _group, _parse_revision(_revision))] = _path
+                res[(_model, _group, _revision)] = _path
         return res
 
 
@@ -102,7 +134,7 @@ class FileDataBase(DataBase):
                 if rn is None:
                     raise RuntimeError("Failed to parse a revision from {}".format(rn))
 
-                model, group = model.rsplit('_', maxsplit=1) if '_' in model else model, group
+                model, group = model.rsplit('_', maxsplit=1) if '_' in model else (model, None)
                 if group is None:
                     raise RuntimeError("Failed to parse a structure group from {}".format(model))
 
@@ -111,24 +143,24 @@ class FileDataBase(DataBase):
                 warn("Failed to list model from database folder: {} ({})".format(rdn, ex))
 
 
-    def clear(self, model: str, revision: Optional[int] = None):
+    def clear(self, key: str, revision: Optional[int] = None):
         if self.readonly:
             raise RuntimeError("Clear is not allowed for readonly Database!")
-        paths = self._access_resource_paths(model=model, revision=revision, fail=False, minimal=True)
+        paths = self._access_resource_paths(key=key, revision=revision, fail=False, minimal=True)
         for fp in paths:
             if os.path.exists(fp):
                 if os.path.isdir(fp):
                     rmdirs(fp)
                 else:
                     removeall(fp)
-        paths = as_set(self._access_resource_paths(model=model, fail=False)).union(
-            self._access_resource_paths(model=model, revision=revision, fail=False))
+        paths = as_set(self._access_resource_paths(key=key, fail=False)).union(
+            self._access_resource_paths(key=key, revision=revision, fail=False))
         for fp in paths:
             if isemptydir(fp):
                 rmdirs(fp)
 
-    def copy(self, dest_root, model: str, revision: Optional[int] = None):
-        paths = self._access_resource_paths(model=model, revision=revision, fail=True)
+    def copy(self, dest_root, key: str, revision: Optional[int] = None):
+        paths = self._access_resource_paths(key=key, revision=revision, fail=True)
         for fp in paths:
             rp = os.path.relpath(fp, self.root)
             dst = os.path.join(dest_root, rp)
@@ -141,15 +173,15 @@ class FileDataBase(DataBase):
             else:
                 raise RuntimeError("Unknown resource type for path: {}".format(fp))
 
-    def _access_resource_paths(self, model: Optional[str] = None, revision: Optional[int] = None,
+    def _access_resource_paths(self, key: Optional[str] = None, revision: Optional[int] = None,
                                fail=True):
         path = self._root
         if not os.path.exists(path):
             raise RuntimeError("The database root does not exist: {}".format(path))
-        if model is not None:
-            desc = _describe_model(model=model, revision=revision)
-            model = str(model).lower().strip()
-            path = os.path.join(path, model)
+        if key is not None:
+            desc = _describe_model(key=key, revision=revision)
+            key = str(key).lower().strip()
+            path = os.path.join(path, key)
             if not os.path.exists(path):
                 if fail:
                     raise RuntimeError("The model does not exist in database: {}".format(desc))
@@ -161,7 +193,7 @@ class FileDataBase(DataBase):
                 path = os.path.join(path, revision_str)
                 if not os.path.exists(path):
                     if fail:
-                        raise RuntimeError("Revision {} does not exist for model {} in database".format(revision_str, model))
+                        raise RuntimeError(f"Revision {revision_str} does not exist for model {key} in database")
                     else:
                         return []
         return [path]
@@ -172,11 +204,13 @@ class URLDataBase(DataBase):
         super().__init__()
         self._urls = urls
 
-    def copy(self, dest_root, model: str, revision: Optional[int] = None):
-        for key, url in self.list(model=model, revision=revision).items():
+    def copy(self, dest_root, key: str, revision: Optional[int] = None):
+        for (m, g, rn), url in self.list(key=key, revision=revision).items():
+            subkey = f'{m}_{g}-{_revision_str(rn)}'
+
             # download the zip to a temporary folder and extract to the destination
             with SafeTemporaryDirectory() as temp:
-                temp_zip = os.path.join(temp, f'{model}.zip')
+                temp_zip = os.path.join(temp, f'{subkey}.zip')
                 gdown.download(url, output=temp_zip, quiet=False, fuzzy=True)
                 with zipfile.ZipFile(temp_zip, 'r') as zip_ref:
                     zip_ref.extractall(dest_root)
@@ -185,4 +219,5 @@ class URLDataBase(DataBase):
         for model, mval in self._urls.items():
             for revision, rval in mval.items():
                 for group, url in rval.items():
-                    yield model, group, revision, url
+                    rn = _parse_revision(revision)
+                    yield model, group, rn, url

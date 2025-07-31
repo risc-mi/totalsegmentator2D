@@ -1,10 +1,14 @@
 import sys
+from typing import List
 
 import SimpleITK as sitk
 import numpy as np
 
+from ts2d.core.util.color import to_palette
 from ts2d.core.util.log import warn
-from ts2d.core.util.sitk_util import get_affine_transform
+from ts2d.core.util.meta import copy_image_meta, copy_image_geo, get_annotation_labels, get_labels, set_annotation_meta, \
+    get_label_mask
+from ts2d.core.util.sitk_util import get_affine_transform, is_label_image, is_label_type
 from ts2d.core.util.types import native, default
 from ts2d.core.util.util import parse_float, unit_vector
 
@@ -245,3 +249,265 @@ def reduce_dimensions(img: sitk.Image, strategy=None, min=None) -> sitk.Image:
                 size[idx] = 1
                 refill -= 1
     return sitk.Extract(img, size, index, strategy)
+
+def convert_img_dims(ref: sitk.Image, v):
+    """
+    for a value that can be a tuple or scalar, return a spacing tuple of the reference image dimension
+    """
+    return [v] * ref.GetDimension() if np.isscalar(v) else v
+
+def image_vector_flatten_max(img: sitk.Image, index=False) -> sitk.Image:
+    """
+    uses numpy to flatten a vector image (if it has more than one component), i.e., remove the component dimension
+    each voxel gets the maximum value over all of its component values
+    Note: supports multichannel labelmaps
+    :param img: simple itk image to flatten, a vector image
+    :param index: set the index of the maximum nonzero component instead
+    :return: flat image with a single component
+    """
+    if img.GetNumberOfComponentsPerPixel() > 1:
+        if index:
+            arr = sitk.GetArrayFromImage(img).T
+            mask = np.vstack([np.ones((1, )+arr.shape[1:], dtype=bool), arr != 0], dtype=bool)
+            mask = mask[::-1, ...]
+            idx = np.argmax(mask, axis=0)
+            arr = arr.shape[0] - idx
+            arr = arr.T
+        else:
+            arr = np.max(sitk.GetArrayFromImage(img), axis=-1)
+
+        res = sitk.GetImageFromArray(arr)
+        copy_image_geo(res, img)
+        copy_image_meta(res, img)
+        return res
+    return img
+
+
+def resample(img, spacing, labels=None, size=None, interpolation=None, center=None, center_position=None, default_value=0, extrapolate=False,
+             setCallback=None) -> sitk.Image:
+    """
+    Resamples an image to the specified spacing (in mm)
+    Sometimes, it is necessary to enforce an output image size: in this case, size and center can be specified to automatically
+    crop the image in the resampling step - this is more effective and accurate than cropping in a postprocessing-step).
+    :param img: image to resample
+    :param spacing: spacing in mm to target
+    :param labels: whether the image contains labels (mask or segmentation), this affects the default interpolation
+    :param size: (optional) size of the output image to enforce (relative to the center), if not specified, the size is calculated
+    :param interpolation: (optional) SimpleITK interpolation method, if not specified, the default is determined from the image
+    :param center: center index of the image, if not specified, the center will not change
+    :param center_position: center position of the image, alternative to the argument center (which is an index)
+    :param default_value: fill value for sampled areas outside the original extent
+    :param extrapolate: whether to enable extrapolation (outside the volume)
+    :return: resampled image
+    """
+    filter = resample_filter(img=img, spacing=spacing, labels=labels, size=size, interpolation=interpolation, center=center, center_position=center_position,
+                             default_value=default_value, extrapolate=extrapolate)
+    if filter is None:
+        return img
+    if setCallback is not None:
+        setCallback(filter)
+    return filter.Execute(img)
+
+
+def resample_filter(img, spacing, labels=None, size=None, interpolation=None, center=None, center_position=None, default_value=0, extrapolate=False):
+    """
+    Instantiates the SimpleITK filter based on the specified image
+    For the arguments see resample
+    """
+    spacing = convert_img_dims(img, spacing)
+    old_spacing = img.GetSpacing()
+    new_spacing = [v for v in spacing]
+    old_size = img.GetSize()
+    if size is None or (None in size):
+        auto_size = [int(0.5 + old_size[i] * s / new_spacing[i]) for i, s in enumerate(old_spacing)]
+        size = auto_size if size is None else tuple((_a if _s is None else _s) for _s, _a in zip(size, auto_size))
+    if center is None:
+        if center_position is None:
+            center = np.multiply(old_size, 0.5)
+    else:
+        if center_position is not None:
+            raise RuntimeError("Either center or center_position may be specified - not both!")
+    if center_position is None:
+        center_position = img.TransformIndexToPhysicalPoint(np.asarray(center, dtype=int).tolist())
+
+    ref = sitk.Image(native(size), img.GetPixelID())
+    ref.SetDirection(img.GetDirection())
+    ref.SetSpacing(native(new_spacing))
+
+    new_diff = np.subtract(ref.TransformIndexToPhysicalPoint(np.multiply(size, 0.5).astype(int).tolist()), ref.GetOrigin())
+    new_origin = center_position-new_diff
+    ref.SetOrigin(new_origin)
+
+    trans = sitk.Transform()
+    trans.SetIdentity()
+    if labels is None:
+        labels = is_label_type(img.GetPixelIDValue())
+    if interpolation is None:
+        interpolation = sitk.sitkBSpline if not labels else sitk.sitkNearestNeighbor
+
+    if img.GetPixelIDValue() == sitk.sitkUInt8 and interpolation != sitk.sitkNearestNeighbor:
+        warn("SimpleITK does not permit interpolation of UInt8 images, falling back to nearest neighbour.")
+        interpolation = sitk.sitkNearestNeighbor
+
+    changed = not np.allclose(spacing, old_spacing)
+    if not changed:
+        changed = ref.GetSize() != img.GetSize() or ref.GetOrigin() != img.GetOrigin()
+    if changed:
+        filter = sitk.ResampleImageFilter()
+        filter.SetReferenceImage(ref)
+        filter.SetTransform(trans)
+        filter.SetOutputPixelType(img.GetPixelID() if not labels else sitk.sitkUInt8)
+        filter.SetInterpolator(interpolation)
+        filter.SetDefaultPixelValue(default_value)
+        filter.SetUseNearestNeighborExtrapolator(extrapolate)
+        return filter
+    else:
+        return None
+
+def resample_uniform(img, **kwargs) -> sitk.Image:
+    """
+    Returns the image in uniform spacing, resampling the larger resolutions to smallest one
+    :param kwargs: for further arguments see resample
+    """
+    spacing = min(img.GetSpacing())
+    return resample(img, spacing, **kwargs)
+
+
+def create_visual(img: sitk.Image, mode='max', axis: int|str=-1,
+              window=None, labels=None, palette=None) -> sitk.Image:
+    """
+    creates a 2d visualization .png of img, if necessary using projections to reduce the dimensionality
+    Window methods:
+    - minmax: adjust the window to the minimum and maximum values
+    - pc5: use the 5th and 95th percentile
+    :param img: nd image
+    :param mode: if necessary, mode to use for projection, defaults to 'max'
+    :param axis: axis to project to, defaults to the last axis (-1)
+    :param window: (optional) intensity window to use for both images, as a tuple of (min, max)
+    :param labels: whether the image contains labels, i.e., is a segmentation, which influences resampling, defaults to None, in which case the method tries to determine the type
+    :param palette: for label images, colors to match label values too
+    """
+    try:
+        labels = default(labels, palette or is_label_image(img))
+    except:
+        labels = False
+    if labels and not palette:
+        # try to extract the palette from the meta information
+        try:
+            palette = dict()
+            meta = get_annotation_labels(img)
+            for k, v in meta.items():
+                value, color = v.get('value'), v.get('color')
+                if value is not None and color is not None:
+                    palette[int(value)] = color
+        except Exception as ex:
+            warn(f"Failed to extract palette from image metadata: {ex}")
+            pass
+
+    img = reorient_image(img)
+
+    _axis = axis_name_to_index(axis) if isinstance(axis, str) else default(axis, -1)
+    while True:
+        img = reduce_dimensions(img, min=2)
+        dim = img.GetDimension()
+        if dim <= 2:
+            break
+        _axis = -1 if abs(_axis) > dim else _axis
+        img = project(img, mode=mode, axis=_axis)
+
+    if labels:
+        map = []
+        if palette is not None:
+            map = to_palette(palette)
+        if img.GetNumberOfComponentsPerPixel() > 1:
+            # convert the label map to label values
+            img = image_vector_flatten_max(img, index=True)
+
+        img = resample_uniform(img, labels=labels)
+        img = sitk.LabelToRGB(img, 0, np.asarray(map).flatten().tolist())
+    else:
+        img = resample_uniform(img, labels=labels)
+        window = get_auto_window(img, window) if (window is None or isinstance(window, str)) else window
+        lower, upper = window
+        if lower is None or upper is None:
+            try:
+                stats = sitk.MinimumMaximumImageFilter()
+                stats.Execute(img)
+                lower = stats.GetMinimum() if lower is None else lower
+                upper = stats.GetMaximum() if upper is None else upper
+            except:
+                lower = 0
+                upper = 255
+        if img.GetNumberOfComponentsPerPixel() > 1:
+            img = sitk.VectorMagnitude(img)
+        img = sitk.IntensityWindowing(img, lower, upper, 0, 255)
+        img = sitk.Cast(img, sitk.sitkUInt8)
+
+    return img
+
+def get_auto_window(img, method):
+    if method is None:
+        method = 'minmax'
+
+    method = method.lower()
+    if method == 'minmax':
+        stat = sitk.MinimumMaximumImageFilter()
+        stat.Execute(img)
+        res = stat.GetMinimum(), stat.GetMaximum()
+    elif method.startswith('pc'):
+        pcstr = method.removeprefix('pc')
+        try:
+            if '-' in pcstr:
+                pc = tuple(float(a) for a in pcstr.split('-'))
+            else:
+                pc = float(pcstr)
+                pc = (pc, 100-pc)
+        except:
+            raise RuntimeError("Failed to parse percentile value from windowing method: {}".format(method))
+        if len(pc) > 2:
+            raise RuntimeError("The percentile can only be a range value: found value {}".format(method))
+        aimg = sitk.GetArrayViewFromImage(img)
+        res = native(np.percentile(aimg, pc))
+    else:
+        raise RuntimeError("Unkown windowing method: {}".format(method))
+
+    return res
+
+def get_actual_dimension(img: sitk.Image):
+    """
+    Returns actual dimensionality of an image, discarding dimensions of size 1
+    """
+    return sum(s > 1 for s in img.GetSize())
+
+
+def combine_segmentations(segs: List[sitk.Image]):
+    """
+    combines multiple segmentations into a single one
+    """
+    res = list()
+    names = dict()
+    colors = dict()
+    for seg in segs:
+        seg_labels = get_annotation_labels(seg)
+        for name, info in seg_labels.items():
+            mask = get_label_mask(seg, info['value'])
+            idx = len(res)
+            names[idx+1] = name
+            c = info.get('color')
+            if c is not None:
+                colors[name] = c
+            res.append(mask)
+
+    res = sitk.Compose(res)
+    set_annotation_meta(res, names=names, colors=colors)
+    return res
+
+def split_channels(img: sitk.Image):
+    """
+    Splits the component channels of an image into a list of single-channel images.
+    :param img: SimpleITK image
+    :return: list of single-channel images
+    """
+    nch = img.GetNumberOfComponentsPerPixel()
+    chs = [img] if nch == 1 else [sitk.VectorIndexSelectionCast(img, i) for i in range(nch)]
+    return chs

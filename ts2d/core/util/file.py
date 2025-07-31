@@ -4,15 +4,13 @@ import traceback
 from typing import Union
 
 
-def read_json(path: str, warn=True):
+def read_json(path: str):
     try:
         with open(path, 'r') as f:
             return json.load(f)
-    except:
-        if warn:
-            traceback.print_exc()
-            raise RuntimeError("Failed to load json data from file: {}".format(path))
-        raise
+    except Exception as ex:
+        raise RuntimeError(f"Failed to load json data from file: {path} ({ex})")
+
 
 
 def write_json(data: Union[dict, list], path: str):

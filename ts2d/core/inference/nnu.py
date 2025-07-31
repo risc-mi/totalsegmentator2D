@@ -21,8 +21,6 @@ class NNUModel:
         super().__init__()
         self._config = config
         self._root = str(config['root'])
-        if not self.name.isidentifier():
-            raise RuntimeError("Invalid model name \"{}\": no valid python identifier".format(self.name))
         if not self.revision.isidentifier():
             raise RuntimeError("Invalid model revision \"{}\": no valid python identifier".format(self.revision))
 
@@ -63,7 +61,15 @@ class NNUModel:
 
     @property
     def folds(self):
-        return tuple(self._config['folds'])
+        return tuple(self.nnu.folds)
+
+    @property
+    def channels(self):
+        return self.nnu.get_channels()
+
+    @property
+    def multilabel(self) -> bool:
+        return self.nnu.multilabel
 
     def __str__(self):
         return _describe_model(model=self.name, revision=self.revision, folds=self.folds)
@@ -84,19 +90,9 @@ class NNUModel:
         update the specified parameters for the model and reload it
         :param param: a dictionary of parameters and values to update
         """
-
-        # make sure a custom trainer (if available) receives a unique id
-        uid_val = self.uid if param.get('nnu.trainer.file') is not None else None
-        if param.get('nnu.trainer.uid') != uid_val:
-            if param.get('nnu.trainer.uid') is not None:
-                warn('Parameter "nnu.trainer.uid" is set automatically and should not be specified in the configuration, '
-                     'changing from "{}" to "{}"'.format(param['nnu.trainer.uid'], self.uid))
-            param['nnu.trainer.uid'] = self.uid
-
         self._param.update(param)
-
         self._nnu = NNUWrapper(self._param)
-        self._nnu.configure(result_dir=self._config['root'], data_dir=None, make_task=False, load_splits=False, override=False)
+        self._nnu.configure(result_dir=self._config['root'])
 
 
 class NNUProcessModel(NNUModel):
@@ -105,15 +101,34 @@ class NNUProcessModel(NNUModel):
         self._predictor = ParallelPredictor()
         super().__init__(config)
 
+    def __del__(self):
+        """
+        Stop the predictor when the model is deleted
+        """
+        try:
+            self.stop()
+        except Exception as e:
+            warn(f"Failed to stop predictor: {e}")
+
     def update_param(self, param):
         super().update_param(param)
         self._predictor.labels = self.nnu.get_labels()
-        self._predictor.colors = dict_get(self._param, 'nnu.result.colors', default='ts2d')
+        self._predictor.colors = self.nnu.get_colors()
 
-    def start(self):
+    def start(self, wait: bool = True):
+        """
+        Start the model predictor, this will initialize the predictor and start the worker processes.
+        :param wait: whether to wait for the predictor to be ready, defaults to True
+        """
         workers = self._param.get('server.workers', 4)
         predictor = self._get_predictor()
         self._predictor.start(predictor, num_workers=workers)
+        if wait:
+            self.await_startup()
+
+    def await_startup(self):
+        self._predictor.wait(ids="startup")
+
 
     def stop(self):
         try:
@@ -123,10 +138,10 @@ class NNUProcessModel(NNUModel):
 
     def _get_predictor(self):
         model = self.nnu['result.data.dir']
-        checkpoint = self._param.get('nnu.predict.checkpoint', 'best')
-        augment = self._param.get('nnu.predict.augment', False)
-        stepsize = self._param.get('nnu.predict.stepsize', 1)
-        verbose = self._param.get('nnu.verbose', False)
+        checkpoint = self.nnu.checkpoint_name
+        augment = self.nnu.augment
+        stepsize = self.nnu.stepsize
+        verbose = self.nnu.verbose
         return partial(self._lazy_load_predictor,
                        model=model, folds=self.folds, checkpoint=f'checkpoint_{checkpoint}.pth',
                        augment=augment, stepsize=stepsize, verbose=verbose)
@@ -134,11 +149,15 @@ class NNUProcessModel(NNUModel):
     @staticmethod
     def _lazy_load_predictor(model, folds, checkpoint, augment, stepsize, verbose):
         from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor
-        predictor = nnUNetPredictor(tile_step_size=stepsize,
-                                    use_gaussian=True,
-                                    use_mirroring=augment,
-                                    perform_everything_on_device=True,
-                                    verbose=verbose)
+        kwargs = dict()
+        if stepsize is not None:
+            kwargs['tile_step_size'] = stepsize
+        if augment is not None:
+            kwargs['use_mirroring'] = augment
+        if verbose is not None:
+            kwargs['verbose'] = verbose
+            kwargs['allow_tqdm'] = verbose
+        predictor = nnUNetPredictor(**kwargs)
         predictor.initialize_from_trained_model_folder(model, folds, checkpoint)
         return predictor
 
@@ -172,7 +191,7 @@ class NNUProcessModel(NNUModel):
                     ofile = os.path.join(output_dir, f'{name}.nrrd')
                     if isinstance(img, sitk.Image):
                         fp_img = os.path.join(input_dir, f'{name}.nrrd')
-                        sitk.WriteImage(img, fp_img)
+                        sitk.WriteImage(img, fp_img, True)
                         path_input = False
                     elif isinstance(img, str):
                         fp_img = img

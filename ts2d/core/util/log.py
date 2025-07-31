@@ -9,6 +9,10 @@ _log_methods = [_default_print]
 _logged_contexts = set()
 
 
+def log_silent(silent: bool):
+    global _log_methods
+    _log_methods = [] if silent else [_default_print]
+
 def log(*args, **kwargs):
     if 'once' in kwargs:
         if kwargs.get('once', False):

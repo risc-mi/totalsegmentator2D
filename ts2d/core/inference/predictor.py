@@ -117,12 +117,12 @@ class ParallelPredictor:
             return self.wait(task.id)
         return task.id
 
-    def wait(self, ids: uuid.UUID | PredictTask | List[uuid.UUID] | List[PredictTask] | NoneType = None,
+    def wait(self, ids: str | uuid.UUID | PredictTask | List[uuid.UUID] | List[PredictTask] | NoneType = None,
              timeout=None,
              fail=True):
         if ids is None:
             ids =  list(self._tasks.keys())
-        multiple = not isinstance(ids, (uuid.UUID, PredictTask))
+        multiple = not isinstance(ids, (str, uuid.UUID, PredictTask))
         wait_ids, results = (ids, dict()) if multiple else ([ids], None)
         wait_ids = set(t.id if isinstance(t, PredictTask) else t for t in wait_ids)
         n_ids = len(wait_ids)
@@ -134,8 +134,10 @@ class ParallelPredictor:
             for id in list(wait_ids):
                 task = self._tasks.get(id, None)
                 if task is None:
-                    # task does no longer exist...
-                    wait_ids.remove(id)
+                    # let's look if a task object exists, but note: named tasks are treated differently
+                    if not isinstance(id, str):
+                        # task does no longer exist...
+                        wait_ids.remove(id)
                 elif task.done:
                     # task ended (successfully or not)
                     if multiple:
@@ -225,56 +227,3 @@ class ParallelPredictor:
         # Manager.dict behaves weired after the Manager dies...
         workers = self._workers.items()
         return dict(workers) if hasattr(workers, '__iter__') else dict()
-
-
-def test(filenames: list, ofile: str, verbose=False):
-    num_workers = 1
-    inner = get_test_predictor(verbose=verbose)
-    predictor = ParallelPredictor()
-    predictor.start(inner, pool=True, num_workers=num_workers)
-
-    for i in range(num_workers):
-        predictor.predict(filenames, ofile, wait=False)
-    results = predictor.wait()
-
-    start = time()
-    ids = []
-
-    from multiprocessing import Pool
-    #with Pool() as pool:
-    #    pool.apply(predictor.predict, args=(filenames, ofile), kwds={'wait': True})
-    for i in range(100):
-        ids.append(predictor.predict(filenames, ofile, wait=False))
-    #for i in range(100):
-    #    start = time()
-    #    predictor.predict(filenames, ofile, wait=True)
-    #    print(f"Finished predicting in {time()-start}")
-
-    print("Waiting for results...")
-    if ids:
-        results = predictor.wait(ids)
-
-    print(f"Finished predicting in {time()-start}")
-    print(f"Results: {len(results)}")
-
-    predictor.stop()
-    print(f"Stopped")
-    pass
-
-def get_test_predictor(verbose=False):
-    model = r'E:\data\models\ct_bodyregion_2d\r001\Dataset601_CADS\nnUNetTrainerDA5__nnUNetPlans__2d'
-    folds = (0,)
-    from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor
-    predictor = nnUNetPredictor(tile_step_size=0.5,
-                                use_gaussian=True,
-                                use_mirroring=False,
-                                perform_everything_on_device=True,
-                                verbose=verbose)
-    predictor.initialize_from_trained_model_folder(model, folds, 'checkpoint_best.pth')
-    return predictor
-
-
-if __name__ == '__main__':
-    filenames = [r"E:\data\output\resources\dicomcheck\dc_far_0052\regions\series1.coronal.nrrd"]
-    ofile = r"E:/test/tots_profiling/output.nrrd"
-    test(filenames, ofile, verbose=False)

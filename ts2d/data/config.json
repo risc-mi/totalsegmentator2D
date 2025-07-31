@@ -1,3 +1,8 @@
 {
-  "default-model": "ts2d_cardiac"
+  "default-model": "ts2d-v1-ep4000b2",
+  "default-test-model": "ts2d_vertebrae",
+  "default-resolve": {
+    "ts2d": "ts2d-v1",
+    "ts2d-v1": "ts2d-v1-ep4000b2"
+  }
 }

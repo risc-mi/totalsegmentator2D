@@ -79,14 +79,15 @@ def rmdirs(dps: Union[str, list]):
                 warn("Failed to remove directory: {}".format(ex))
 
 
-def format_array(a, p=3):
+def format_array(a, p=3, sep=', '):
     """
     converts an array or scalar to a string
     :param a: array to convert
     :param p: precision to use
+    :param sep: separator to use between values
     """
     a = as_tuple(a)
-    return ', '.join(np.format_float_positional(v, precision=p, unique=False) for v in a)
+    return sep.join(np.format_float_positional(v, precision=p, unique=False) for v in a)
 
 def removeall(fns: Union[List[str], str]):
     """
@@ -128,5 +129,3 @@ def unit_vector(v, axis=-1, div0=np.nan):
     if reorder:
         v = np.moveaxis(v, 0, axis)
     return v
-
-

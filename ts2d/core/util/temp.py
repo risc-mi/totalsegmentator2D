@@ -66,7 +66,7 @@ class SafeTemporaryDirectory(TemporaryDirectory):
                             do_clear = False
                             for retry in range(2):
                                 try:
-                                    info = read_json(fn, warn=False) if os.path.exists(fn) else None
+                                    info = read_json(fn) if os.path.exists(fn) else None
                                     break
                                 except:
                                     # reading the info file failed, maybe we collided with the writing process... retry

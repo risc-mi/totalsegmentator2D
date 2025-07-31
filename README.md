@@ -34,7 +34,14 @@ We evaluated TS2D against projected ground-truth labels and compared its perform
 
 ## Usage
 
--- Coming soon --
+### Setup
+
+TS2D has been tested with **Python 3.12** and Pytorch 2.7.1 (CUDA 11.8) on a **Windows 11** system.
+We recommend installing PyTorch in your environment **before installing TS2D**. Ensure you set up PyTorch with the correct CUDA version for your system and PyTorch release. For installation instructions, see the [PyTorch documentation](https://pytorch.org/get-started/locally/).
+After setting up PyTorch, install TS2D with pip: `pip install .`
+
+### Demo
+
 
 ## Publications
 

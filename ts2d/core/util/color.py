@@ -83,3 +83,21 @@ def to_color_str_rgb_floats(v: Union[int, tuple, list, str], sep=', '):
     v = native(np.clip(np.asarray(v, dtype=float) / 255, a_min=0, a_max=1))
     v = format_array(v, p=3, sep=sep)
     return v
+
+def to_palette(v: Union[dict, list]):
+    if isinstance(v, dict):
+        if any(not isinstance(k, int) or k < 0 for k in v.keys()):
+            raise RuntimeError("Dictionary palette must consist of non-negative integer keys!")
+        lim = max(v.keys()) if v.keys() else 0
+        res = list()
+        res.append([255, 255, 255]) # background should be replaced
+        for idx in range(1, lim+1):
+            c = v.get(idx)
+            if c is not None:
+                c = to_color(c)
+            else:
+                c = default_color(idx)
+            res.append(c)
+        return res
+    else:
+        return list(to_color(c) for c in v)

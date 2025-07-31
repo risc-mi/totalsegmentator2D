@@ -1,1 +1,1 @@
-from ts2d.main import TS2D
+from ts2d.tool import TS2D

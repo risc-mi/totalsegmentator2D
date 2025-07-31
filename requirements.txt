@@ -1,4 +1,6 @@
 SimpleITK
 psutil
 gdown
+dload
+pytest
 ./libs/nnUNet-multilabel
