@@ -93,10 +93,10 @@ class NNUWrapper:
             except:
                 raise RuntimeError("Pytorch is not available in the current python environment!")
             if not torch.cuda.is_available():
-                raise RuntimeError("CUDA is not available in the installed Pytorch package!")
+                warn("CUDA is not available in the installed Pytorch package!")
         except:
             warn(
-                "ERROR: The Pytorch package (pytorch/torch) is not correctly installed in the current python environment.\n"
+                "WARNING: The Pytorch package (pytorch/torch) is not correctly installed in the current python environment.\n"
                 "--- INSTRUCTIONS ---\n"
                 "Try reinstalling the package and ensure the correct CUDA version is available.\n"
                 "Follow the instructions at https://pytorch.org/get-started/locally/#windows-python and make \n"

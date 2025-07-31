@@ -22,6 +22,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          set -x
           python -m pip install --upgrade pip
           pip install torch torchvision torchaudio
           pip install ./libs/nnUNet-multilabel
