@@ -23,7 +23,7 @@ dependencies = [
     "gdown~=5.2.0",
     "dload==0.6",
     "psutil~=7.0",
-    "nnunetv2 @ git+https://github.com/risc-mi/nnUNet-multilabel.git@a2e204443433420245c1725a7ad703abf4de186a"
+    "nnunetv2ml==2.6.2",
 ]
 classifiers = [
   "Intended Audience :: Science/Research",

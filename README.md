@@ -39,15 +39,19 @@ We evaluated TS2D against projected ground-truth labels and compared its perform
 
 ### Setup
 
-TS2D has been tested with **Python 3.12** and Pytorch 2.7.1 (CUDA 11.8) on a **Windows 11** system.
-We recommend installing PyTorch in your environment **before installing TS2D**. Ensure you set up PyTorch with the correct CUDA version for your system and PyTorch release. For installation instructions, see the [PyTorch documentation](https://pytorch.org/get-started/locally/).
-After setting up PyTorch, install TS2D with pip: `pip install .` on your clone of the repository or run `pip install git+https://github.com/risc-mi/totalsegmentator2D.git`.
+TS2D has been tested with **Python 3.12** and Pytorch 2.7.1 (CUDA 11.8) on a **Windows 11** system and on Ubuntu (tested with CPU only).
+We recommend installing PyTorch in your environment **before installing TS2D** to ensure GPU support. Ensure you set up PyTorch with the correct CUDA version for your system and PyTorch release. For installation instructions, see the [PyTorch documentation](https://pytorch.org/get-started/locally/).
+
+After setting up PyTorch, install TS2D with pip using **one** of the following methods: 
+- install from PyPI: `pip install ts2d`
+- or install your local clone of the repository: `pip install .`
+- or temporarily clone and install the repository: `pip install git+https://github.com/risc-mi/totalsegmentator2D.git`.
 
 ### Get Started
 
 You can run TS2D using the Command line interface (CLI):
 
-`python -m ts2d -i <input_image> -o <output_directory>`
+`ts2d -i <input_image> -o <output_directory>`
 
 or alternatively, you can use the API to run TS2D in your Python scripts:
 
