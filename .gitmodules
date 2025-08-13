@@ -1,3 +1,0 @@
-[submodule "libs/nnUNet-multilabel"]
-	path = libs/nnUNet-multilabel
-	url = https://github.com/risc-mi/nnUNet-multilabel.git

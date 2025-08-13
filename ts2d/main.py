@@ -82,15 +82,15 @@ def ts2d_entry_point():
     """
     import argparse
 
-    parser = argparse.ArgumentParser(description="Run TS2D on images or directories.")
-    parser.add_argument("--src", "-i", "--input", type=str, help="Input image file or directory. Supported formats are: nrrd, nii, nii.gz, mha, mhd")
-    parser.add_argument("--dest", "-o", "--output", type=str, help="Output directory for results")
-    parser.add_argument("--model", type=str, default=None, help="Model key for prediction")
-    parser.add_argument("--no-remote", action="store_true", help="Disable remote model download")
-    parser.add_argument("--collapse", action="store_true", help="Collapse projected images to 2D")
-    parser.add_argument("--visualize", action="store_true", help="Visualize the result as PNG images.")
-    parser.add_argument("--save-all", action="store_true", help="Save results for each individual model, otherwise only the final result is saved.")
-    parser.add_argument("--silent", action="store_true", help="Print no unnecessary output.")
+    parser = argparse.ArgumentParser(description="Runs TotalSegmentator2D (TS2D) on images or directories of images to automatically segment anatomical structures.")
+    parser.add_argument("--src", "-i", "--input", type=str, help="Input image file or directory. Supported formats are: nrrd, nii, nii.gz, mha, mhd", required=True)
+    parser.add_argument("--dest", "-o", "--output", type=str, help="Output directory for results.", required=True)
+    parser.add_argument("--model", type=str, default=None, help="Model key for prediction, defaults to 'ts2d-v1-ep4000b2'.")
+    parser.add_argument("--no-remote", action="store_true", help="Disable remote model download. Models must be available locally.")
+    parser.add_argument("--collapse", action="store_true", help="Collapse projected images to 2D. This removes the 3D geometrical information.")
+    parser.add_argument("--visualize", action="store_true", help="Visualize the results as PNG images.")
+    parser.add_argument("--save-all", action="store_true", help="In addition to the final result, also saves results for each individual model.")
+    parser.add_argument("--silent", action="store_true", help="Hides any unnecessary output.")
 
     args = parser.parse_args()
 

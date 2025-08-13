@@ -93,7 +93,7 @@ class NNUWrapper:
             except:
                 raise RuntimeError("Pytorch is not available in the current python environment!")
             if not torch.cuda.is_available():
-                warn("CUDA is not available in the installed Pytorch package!")
+                warn("CUDA is not available in the installed Pytorch package!", once=True)
         except:
             warn(
                 "WARNING: The Pytorch package (pytorch/torch) is not correctly installed in the current python environment.\n"
@@ -260,17 +260,8 @@ class _NNUAdapterV2(_NNUAdapter):
                 import nnunetv2
             except:
                 raise RuntimeError("nnUNet is not available in the active python environment!")
-            from importlib.metadata import distribution, PackageNotFoundError
-            try:
-                distribution('nnunetv2')
-            except PackageNotFoundError:
-                raise RuntimeError("Failed to query the installed entry points of nnUNet!")
-
         except:
-            warn("ERROR: The nnUNet package (nnunetv2) is not correctly installed in the current python environment.\n"
-                 "--- INSTRUCTIONS ---\n"
-                 "Try reinstalling the package with: pip install --force-reinstall nnunetv2\n"
-                 "--------------------\n")
+            warn("ERROR: The nnUNet package (nnunetv2) is not correctly installed in the current python environment!")
             raise
 
     def get_configured_ext(self, config: dict):
