@@ -27,7 +27,9 @@ jobs:
         run: pip list
 
       - name: Run tests
-        run: pytest test --capture=no
+        run: |
+          pip install pytest
+          pytest test --capture=no
 
   publish:
     needs: test

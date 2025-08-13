@@ -6,3 +6,5 @@
 *.pyc
 /ts2d.egg-info
 /build
+*.whl
+/dist
