@@ -68,7 +68,10 @@ class NNUZoo:
         db = default(self.remote, self.local)
         if unique_model:
             # take the first unique model for the key
-            model = sorted(db.models(key=key))[0]
+            models = sorted(db.models(key=key))
+            if not models:
+                raise RuntimeError(f"No models resolved for key '{key}'")
+            model = models[0]
             return db.ids(model=model)
         return db.ids(key=key)
 

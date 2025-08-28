@@ -164,10 +164,11 @@ class TS2D:
             projections.update((f"ch{ch_idx}", ch) for ch_idx, ch in enumerate(split_channels(input)))
 
         # the actual inference
-        input2D = reduce_dimensions(input)
+        native_2d = input.GetDimension() < 3
+        input2D = input if native_2d else reduce_dimensions(input)
         seg = model.apply(input2D)
         assert isinstance(seg, sitk.Image), f"Model returned an unexpected result: expected a segmentation image and found {type(seg).__name__}."
-        seg = seg if collapse else self._restore_dimension(seg, input)
+        seg = seg if collapse or native_2d else self._restore_dimension(seg, input)
         input = input2D if collapse else input
 
         result['input'] = input

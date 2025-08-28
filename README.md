@@ -1,9 +1,10 @@
 # TotalSegmentator 2D: A Tool for Rapid Anatomical Structure Analysis
-> ⚠️ **Update:** The TS2D models [MIUA2025a] have been published with version 1.0.0!
+
+> ⚠️ [2025-08-26] **Update:** Pretrained models for the v2.0.1 TotalSegmentator dataset are available with version 1.1.0!
+
+> ⚠️ [2025-07-31] **Update:**  The TS2D models [MIUA2025a] have been published with version 1.0.0!
 
 > ⚠️ **Note:** The X-Ray models [MIUA2025b] will be released soon, stay tuned!
-
-> ⚠️ **Note:** This is a preview version and may be incomplete or subject to changes.
 
 ## About
 
@@ -24,15 +25,15 @@ TS2D uses coronal projection images generated through maximum and average intens
 
 <img src="assets/examples.png" alt="Example segmentation results and DSC scores." style="max-width: 600px; width: 100%;">
 
-_Figure 2: Example segmentation results and DSC scores from each of the five models, with each trained on a specific group of anatomical labels._
+_Figure 2: Segmentation results for the five anatomical group models used with the default TS2D configuration (ts2d-v2-ep4000b2), along with the combined output (Patient s0616). Each model was trained on a distinct set of anatomical labels._
 
 We evaluated TS2D against projected ground-truth labels and compared its performance to the original TotalSegmentator tool (TS3D) with inference results projected to 2D.
-
 
 |   Method    | Overall | Bone Structures | Soft-Tissue Structures | Inference Time (Nvidia RTX 4090) |
 |:-----------:|:-------:|:---------------:|:---------------------:|:--------------------------------:|
 | TS2D (Ours) | 0.86    | 0.90            | 0.81                  |          0.47–0.86 secs          |
 |    TS3D     | 0.97    | 0.97            | 0.97                  |           43–146 secs            |
+_Note_: The table shows results for the TotalSegmentator v1 dataset to ensure comparability with the original TS3D publication.
 
 
 ## Usage
@@ -72,7 +73,12 @@ The following models are available in TS2D have been published and can be specif
 
 | Model | Dataset | Configuration |   Group   |          Model ID          | Test Dice |
 |:-----:|:-------:|:-------------:|:---------:|:--------------------------:|:---------:|
-| TS2D  |   v1    |   ep4000b2    |  cardiac  |  ts2d-v1-ep4000b2_cardiac  |   0.77    |
+| TS2D  | v2.0.1  |   ep4000b2    |  cardiac  |  ts2d-v2-ep4000b2_cardiac  |   0.72    |
+|       |         |               |  muscles  |  ts2d-v2-ep4000b2_muscles  |   0.96    |
+|       |         |               |  organs   |  ts2d-v2-ep4000b2_organs   |   0.78    |
+|       |         |               |   ribs    |   ts2d-v2-ep4000b2_ribs    |   0.88    |
+|       |         |               | vertebrae | ts2d-v2-ep4000b2_vertebrae |   0.88    |
+|       | v1.0.0  |   ep4000b2    |  cardiac  |  ts2d-v1-ep4000b2_cardiac  |   0.77    |
 |       |         |               |  muscles  |  ts2d-v1-ep4000b2_muscles  |   0.93    |
 |       |         |               |  organs   |  ts2d-v1-ep4000b2_organs   |   0.78    |
 |       |         |               |   ribs    |   ts2d-v1-ep4000b2_ribs    |   0.89    |
@@ -86,7 +92,7 @@ A model ID follows the structure `<model>-<dataset>-<configuration>_<group>`. Fo
 Model keys can be abbreviated to match multiple models; for instance, `ts2d-v1-ep4000b2` includes all anatomical groups in that configuration. If only `ts2d` is specified, default models are used.
 
 TS2D runs all models matching the specified key and merges their outputs into a single segmentation.  
-The default model key is `ts2d-v1-ep4000b2`, which includes the five anatomical group models in this configuration.
+The default model key is `ts2d-v2-ep4000b2`, which includes the five anatomical group models in this configuration.
 
 ## Publications
 
@@ -134,3 +140,4 @@ This project is financed by research subsidies granted by the government of Uppe
 ### Versions
 
 - v1.0.0: first release of TS2D including the [MIUA2025a] models.
+- v1.1.0: added models trained on the TotalSegmentator v2 dataset

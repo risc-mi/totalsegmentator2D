@@ -36,6 +36,7 @@ def ts2d_run(src: str,
              dest: str,
              model: str = None,
              use_remote: bool = True,
+             fetch_remote: bool = True,
              collapse: bool = False,
              visualize: bool = True,
              save_all: bool = False,
@@ -46,6 +47,7 @@ def ts2d_run(src: str,
     :param dest: Directory path where output results will be stored.
     :param model: Model key for prediction; uses the default if not specified.
     :param use_remote: If False, only locally available models are used; if True, models may be downloaded from a remote source.
+    :param fetch_remote: If True, the model URLs are loaded from the remote shared.json file (from the main branch); if False, only the local clone is used.
     :param collapse: If True, collapses the projected images to 2D, otherwise the 3D geometry is preserved.
     :param visualize: If True, visualizes the final result as PNG images; if 'all', visualizes all results from every model.
     :param save_all: If True, saves results for each individual model; otherwise, only the final result is saved.
@@ -66,7 +68,7 @@ def ts2d_run(src: str,
         "In Annual Conference on Medical Image Understanding and Analysis (pp. 32-43). Cham: Springer Nature Switzerland.\n"
         f"{bar}\n")
 
-    with TS2D(key=model, use_remote=use_remote) as model:
+    with TS2D(key=model, use_remote=use_remote, fetch_remote=fetch_remote) as model:
         cases = list(_enumerate_cases(src))
         n_cases = len(cases)
         log(f"Predicting {n_cases} case{'s' if n_cases != 1 else ''}")
@@ -87,6 +89,7 @@ def ts2d_entry_point():
     parser.add_argument("--dest", "-o", "--output", type=str, help="Output directory for results.", required=True)
     parser.add_argument("--model", type=str, default=None, help="Model key for prediction, defaults to 'ts2d-v1-ep4000b2'.")
     parser.add_argument("--no-remote", action="store_true", help="Disable remote model download. Models must be available locally.")
+    parser.add_argument("--no-fetch", action="store_true", help="Disable to not fetch the latest model URLs from the remote repository and use the local shared.json instead.")
     parser.add_argument("--collapse", action="store_true", help="Collapse projected images to 2D. This removes the 3D geometrical information.")
     parser.add_argument("--visualize", action="store_true", help="Visualize the results as PNG images.")
     parser.add_argument("--save-all", action="store_true", help="In addition to the final result, also saves results for each individual model.")
@@ -99,6 +102,7 @@ def ts2d_entry_point():
         dest=args.dest,
         model=args.model,
         use_remote=not args.no_remote,
+        fetch_remote=not args.no_fetch,
         collapse=args.collapse,
         visualize=args.visualize,
         save_all=args.save_all,

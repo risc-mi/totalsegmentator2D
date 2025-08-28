@@ -8,6 +8,15 @@
       "vertebrae": "https://zenodo.org/records/16574232/files/ts2d-v1-ep4000b2_vertebrae.zip?download=1"
     }
   },
+  "ts2d-v2-ep4000b2": {
+    "r001": {
+      "cardiac": "https://zenodo.org/records/16985939/files/ts2d-v2-ep4000b2_cardiac.zip?download=1",
+      "muscles": "https://zenodo.org/records/16985939/files/ts2d-v2-ep4000b2_muscles.zip?download=1",
+      "organs": "https://zenodo.org/records/16985939/files/ts2d-v2-ep4000b2_organs.zip?download=1",
+      "ribs": "https://zenodo.org/records/16985939/files/ts2d-v2-ep4000b2_ribs.zip?download=1",
+      "vertebrae": "https://zenodo.org/records/16985939/files/ts2d-v2-ep4000b2_vertebrae.zip?download=1"
+    }
+  },
   "ts2d-v1-ep10000b2": {
     "r001": {
       "bones": "https://zenodo.org/records/16574232/files/ts2d-v1-ep10000b2_bones.zip?download=1",

@@ -39,6 +39,7 @@ hip-left,#a9a27e
 hip-right,#b89472
 
 brain,#FF69B4
+spinal-cord,#00CED1
 spleen,#A569BD
 kidney-left,#20B2AA
 kidney-right,#FF7F50
@@ -48,7 +49,10 @@ stomach,#9ACD32
 pancreas,#6B8E23
 adrenal-gland-left,#6A5ACD
 adrenal-gland-right,#C71585
-
+thyroid-gland,#FFD700
+prostate,#40E0D0
+kidney-cyst-left,#00FF7F
+kidney-cyst-right,#FF4500
 
 aorta,#8B0000
 brachiocephalic-trunk,#800000
@@ -67,13 +71,13 @@ subclavian-artery-left,#660000
 subclavian-artery-right,#992222
 superior-vena-cava,#5A1C1C
 pulmonary-artery,#8B0000
+heart,#B22222
+atrial-appendage-left,#CD5C5C
 heart-myocardium,#B22222
 heart-atrium-left,#CD5C5C
 heart-ventricle-left,#A52A2A
 heart-atrium-right,#E06666
 heart-ventricle-right,#D63031
-
-
 
 rib-left-1,#ADD8E6
 rib-left-2,#B0E0E6
@@ -99,6 +103,8 @@ rib-right-9,#FFAAAA
 rib-right-10,#F7C6CE
 rib-right-11,#FFB3B3
 rib-right-12,#FFDDE0
+sternum,#E5C29F
+costal-cartilages,#F5DEB3
 
 vertebrae-C1,#D2B48C
 vertebrae-C2,#A0522D
