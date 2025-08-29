@@ -19,7 +19,7 @@ def get_labels(seg: sitk.Image, bg=None, numpy=False, fetch=True) -> list:
     :param seg label/mask image to process
     :param bg one or many labels to disregard as background, defaults to the label value 0
     :param numpy whether to use numpy or simpleitk to determine the labels, numpy can be considerably slower
-    :param fetch: check whether the label is actually set/present in the segmentation, only appicable for multicomponent segmentations
+    :param fetch: check whether the label is actually set/present in the segmentation, only applicable for multicomponent segmentations
     """
     bg = default(bg, 0)
     bg = as_set(bg)
@@ -192,6 +192,9 @@ def set_annotation_meta(seg: sitk.Image, names: Dict[int, str]=None, colors: Uni
         except:
             warn("Failed to load named palette: {}".format(colors_name))
 
+    if names is None:
+        names = get_label_names(seg, fetch=False)
+
     # remove any existing segment information
     for k in list(info.keys()):
         if k.startswith('Segment'):
@@ -255,7 +258,7 @@ def get_annotation_meta(seg: sitk.Image, fetch=True) -> Dict[int, dict]:
     each labels that is present in the image
     Note: supports multichannel labelmaps
     :param seg: annotated segmentation image
-    :param fetch: if True, the segmentation w
+    :param fetch: if True, the label values in the segmentation are checked to extract all existing labels
     :return: label values with their metadata
     """
     info = get_image_meta(seg)
@@ -325,3 +328,7 @@ def get_annotation_labels(seg: sitk.Image, fetch=True, counts=False, return_look
         lookup[l] = info
 
     return (res, lookup) if return_lookup else res
+
+def get_label_names(seg: sitk.Image, fetch=True):
+    meta = get_annotation_meta(seg, fetch=fetch)
+    return dict((l, m.get('Name')) for l, m in meta.items())

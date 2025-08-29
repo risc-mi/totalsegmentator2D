@@ -1,37 +1,47 @@
 # TotalSegmentator 2D: A Tool for Rapid Anatomical Structure Analysis
 
-> ⚠️ [2025-08-26] **Update:** Pretrained models for the v2.0.1 TotalSegmentator dataset are available with version 1.1.0!
+> ⚡ **Latest Updates**  
+> - **2025-08-26**: v1.1.0 released → includes models pretrained on the **TotalSegmentator v2.0.1** 
+> - **2025-07-31**: v1.0.0 released → includes **MIUA2025a TS2D models** pretrained on the **TotalSegmentator v1.0** dataset
+> - 🚧 **Coming soon**: TSXR — X-Ray segmentation models (see [MIUA2025b])
 
-> ⚠️ [2025-07-31] **Update:**  The TS2D models [MIUA2025a] have been published with version 1.0.0!
+## What is TS2D?
 
-> ⚠️ **Note:** The X-Ray models [MIUA2025b] will be released soon, stay tuned!
+**TotalSegmentator 2D (TS2D)** is a fast and lightweight tool for anatomical structure segmentation and analysis.<br>
+It adapts [TotalSegmentator (3D)](https://github.com/wasserth/TotalSegmentator) by projecting CT scans into **2D views**, enabling:
 
-## About
+- ⚡ **Rapid inference** (results in less than a second, compared to several minutes for 3D methods)
+- 💻 **Low GPU/CPU requirements**  
+- 🧠 **Accurate segmentation** of 117 anatomical structures (see `ts2d-v2` models)
+- 🩻 **Segmentation of native 2D X-ray scans** (see the upcoming `tsxr` models)
 
-**TotalSegmentator 2D (TS2D)** is a tool for fast and efficient anatomical structure segmentation and analysis. **TS2D** is built upon the **TotalSegmentator** dataset and tool, but adopts a 2D projection approach to enable rapid inference and reduced resource consumption. It is designed to segment a variety of anatomical structures in medical images and supports a broad range of applications. The resulting segmentations are used to infer the presence of specific anatomical structures within the image.
-
-TS2D has been used for:
-- Anatomical structure segmentation and analysis in CT and X-Ray images.
+**Use cases include**:
+- Anatomical structure segmentation and analysis in CT images.
 - Body-region segmentation and detection in CT scans.
+- X-ray analysis (coming soon)  
 
-<img src="assets/method.png" alt="Overview of our method." style="max-width: 600px; width: 100%;">
+<img src="assets/method.png" alt="Overview of our method." style="max-width: 800px; width: 100%;">
 
-_Figure 1: Overview of our method. The volumetric scan ($I_{3D}$) and ground-truth labels ($T_{3D}$) are projected onto the coronal plane to train 2D U-Net model(s). The trained models can then efficiently infer 2D labels ($L_{2D}$) for any projected CT scan._
+_Figure 1: Standard CT workflow. Volumetric scans and ground-truth labels are projected onto the coronal plane to train five specialized 2D U-Net models. These models enable fast and efficient inference of 2D anatomical labels for any projected CT scan._
 
-# Method
+## How It Works
 
-TS2D uses coronal projection images generated through maximum and average intensity projection for the segmentation of anatomical structures. The two-channel input is processed by a 2D U-Net, implemented using our [adapted nnU-Net framework](https://github.com/risc-mi/nnUNet-multilabel/blob/main/readme.md) to support multi-label output and thus correctly handle overlapping structures (see Figure 1). The method was trained on the TotalSegmentator v1 dataset, which provides 104 anatomical labels across 1204 CT scans. The task was divided among five models, each trained on a distinct group of anatomical structures (see Figure 2). 
+TS2D uses coronal projection images generated through maximum and average intensity projection for the segmentation of anatomical structures. 
+The two-channel input is processed by a 2D U-Net, implemented using our [adapted nnU-Net framework](https://github.com/risc-mi/nnUNet-multilabel/blob/main/readme.md) to support multi-label 
+output and thus correctly handle overlapping structures (see Figure 1). 
+Pretrained models for both version 1 and version 2 of TotalSegmentator are available. Version 2 supports segmentation of 117 anatomical labels.
+The segmentation task was distributed across five specialized models, each focused on a distinct group of anatomical structures (see Figure 2).
 
+<img src="assets/examples.png" alt="Example segmentation results." style="max-width: 800px; width: 100%;">
 
-<img src="assets/examples.png" alt="Example segmentation results and DSC scores." style="max-width: 600px; width: 100%;">
+_Figure 2: Segmentation results for the five anatomical group models used with the default TS2D configuration (ts2d-v2-ep4000b2), along with the combined output (Patient s0616).
 
-_Figure 2: Segmentation results for the five anatomical group models used with the default TS2D configuration (ts2d-v2-ep4000b2), along with the combined output (Patient s0616). Each model was trained on a distinct set of anatomical labels._
-
-We evaluated TS2D against projected ground-truth labels and compared its performance to the original TotalSegmentator tool (TS3D) with inference results projected to 2D.
+TS2D was evaluated using projected ground-truth labels and its performance was compared to the original TotalSegmentator tool (TS3D), with both methods' inference results projected to 2D for consistency.
+A comprehensive comparison can be found in our publication \[MIUA2025a\].
 
 |   Method    | Overall | Bone Structures | Soft-Tissue Structures | Inference Time (Nvidia RTX 4090) |
 |:-----------:|:-------:|:---------------:|:---------------------:|:--------------------------------:|
-| TS2D (Ours) | 0.86    | 0.90            | 0.81                  |          0.47–0.86 secs          |
+| TS2D (Ours) | 0.86    | 0.90            | 0.81                  |         **0.5-0.9 secs**         |
 |    TS3D     | 0.97    | 0.97            | 0.97                  |           43–146 secs            |
 _Note_: The table shows results for the TotalSegmentator v1 dataset to ensure comparability with the original TS3D publication.
 
@@ -41,12 +51,14 @@ _Note_: The table shows results for the TotalSegmentator v1 dataset to ensure co
 ### Setup
 
 TS2D has been tested with **Python 3.12** and Pytorch 2.7.1 (CUDA 11.8) on a **Windows 11** system and on Ubuntu (tested with CPU only).
-We recommend installing PyTorch in your environment **before installing TS2D** to ensure GPU support. Ensure you set up PyTorch with the correct CUDA version for your system and PyTorch release. For installation instructions, see the [PyTorch documentation](https://pytorch.org/get-started/locally/).
 
-After setting up PyTorch, install TS2D with pip using **one** of the following methods: 
-- install from PyPI: `pip install ts2d`
-- or install your local clone of the repository: `pip install .`
-- or temporarily clone and install the repository: `pip install git+https://github.com/risc-mi/totalsegmentator2D.git`.
+👉 Install PyTorch **before** installing TS2D (see [PyTorch setup](https://pytorch.org/get-started/locally/)).
+
+Then install TS2D via:
+- from PyPI: `pip install ts2d`
+- from a local clone: `pip install .`
+- from GitHub: `pip install git+https://github.com/risc-mi/totalsegmentator2D.git`.
+
 
 ### Get Started
 
@@ -89,10 +101,58 @@ The following models are available in TS2D have been published and can be specif
 
 Models are specified using a key (e.g., `ts2d`), which can resolve to one or more model IDs (e.g., `ts2d-v1-ep4000b2_organs`).  
 A model ID follows the structure `<model>-<dataset>-<configuration>_<group>`. For example, `ts2d-v1-ep4000b2_organs` refers to the TS2D model trained on the TotalSegmentator v1 dataset, with 4000 epochs, batch size 2, for the organ group.  
-Model keys can be abbreviated to match multiple models; for instance, `ts2d-v1-ep4000b2` includes all anatomical groups in that configuration. If only `ts2d` is specified, default models are used.
+Model keys can be abbreviated to match multiple models; for instance, `ts2d-v1-ep4000b2` includes all anatomical groups in that configuration. If only `ts2d` is specified, the default models are used (cardiac, muscles, organs, ribs and vertebrae).
 
 TS2D runs all models matching the specified key and merges their outputs into a single segmentation.  
 The default model key is `ts2d-v2-ep4000b2`, which includes the five anatomical group models in this configuration.
+
+Example model keys and their resolved model IDs:
+
+<table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Resolved model ID(s)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>ts2d</code> or<br>
+        <code>ts2d-v2</code> or<br>
+        <code>ts2d-v2-ep4000b2</code>
+      </td>
+      <td>
+        <code>ts2d-v2-ep4000b2_cardiac</code>,<br>
+        <code>ts2d-v2-ep4000b2_muscles</code>,<br>
+        <code>ts2d-v2-ep4000b2_organs</code>,<br>
+        <code>ts2d-v2-ep4000b2_ribs</code>,<br>
+        <code>ts2d-v2-ep4000b2_vertebrae</code></td>
+    </tr>
+    <tr>
+      <td>
+<code>ts2d_cardiac</code> or<br>
+<code>ts2d-v2_cardiac</code>
+</td>
+      <td><code>ts2d-v2-ep4000b2_cardiac</code>
+</td>
+    </tr>
+    <tr>
+      <td><code>ts2d-v1</code></td>
+      <td>
+        <code>ts2d-v1-ep4000b2_cardiac</code>,<br>
+        <code>ts2d-v1-ep4000b2_muscles</code>,<br>
+        <code>ts2d-v1-ep4000b2_organs</code>,<br>
+        <code>ts2d-v1-ep4000b2_ribs</code>,<br>
+        <code>ts2d-v1-ep4000b2_vertebrae</code>
+</td>
+    </tr>
+    <tr>
+      <td><code>ts2d_bones</code></td>
+      <td><code>ts2d-v1-ep10000b2_bones</code></td>
+    </tr>
+  </tbody>
+</table>
 
 ## Publications
 
