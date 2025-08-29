@@ -43,6 +43,7 @@ A comprehensive comparison can be found in our publication \[MIUA2025a\].
 |:-----------:|:-------:|:---------------:|:---------------------:|:--------------------------------:|
 | TS2D (Ours) | 0.86    | 0.90            | 0.81                  |         **0.5-0.9 secs**         |
 |    TS3D     | 0.97    | 0.97            | 0.97                  |           43–146 secs            |
+
 _Note_: The table shows results for the TotalSegmentator v1 dataset to ensure comparability with the original TS3D publication.
 
 
@@ -85,18 +86,18 @@ The following models are available in TS2D have been published and can be specif
 
 | Model | Dataset | Configuration |   Group   |          Model ID          | Test Dice |
 |:-----:|:-------:|:-------------:|:---------:|:--------------------------:|:---------:|
-| TS2D  | v2.0.1  |   ep4000b2    |  cardiac  |  ts2d-v2-ep4000b2_cardiac  |   0.72    |
-|       |         |               |  muscles  |  ts2d-v2-ep4000b2_muscles  |   0.96    |
-|       |         |               |  organs   |  ts2d-v2-ep4000b2_organs   |   0.78    |
-|       |         |               |   ribs    |   ts2d-v2-ep4000b2_ribs    |   0.88    |
-|       |         |               | vertebrae | ts2d-v2-ep4000b2_vertebrae |   0.88    |
-|       | v1.0.0  |   ep4000b2    |  cardiac  |  ts2d-v1-ep4000b2_cardiac  |   0.77    |
-|       |         |               |  muscles  |  ts2d-v1-ep4000b2_muscles  |   0.93    |
-|       |         |               |  organs   |  ts2d-v1-ep4000b2_organs   |   0.78    |
-|       |         |               |   ribs    |   ts2d-v1-ep4000b2_ribs    |   0.89    |
-|       |         |               | vertebrae | ts2d-v1-ep4000b2_vertebrae |   0.90    |
-|       |         |   ep10000b2   |   bones   |  ts2d-v1-ep10000b2_bones   |   0.88    |
-|       |         |               |   soft    |   ts2d-v1-ep10000b2_soft   |   0.81    |
+| TS2D  | v2.0.1  |   ep4000b2    |  cardiac  |  `ts2d-v2-ep4000b2_cardiac`  |   0.72    |
+|       |         |               |  muscles  |  `ts2d-v2-ep4000b2_muscles`  |   0.96    |
+|       |         |               |  organs   |  `ts2d-v2-ep4000b2_organs`   |   0.78    |
+|       |         |               |   ribs    |   `ts2d-v2-ep4000b2_ribs`    |   0.88    |
+|       |         |               | vertebrae | `ts2d-v2-ep4000b2_vertebrae` |   0.88    |
+|       | v1.0.0  |   ep4000b2    |  cardiac  |  `ts2d-v1-ep4000b2_cardiac`  |   0.77    |
+|       |         |               |  muscles  |  `ts2d-v1-ep4000b2_muscles`  |   0.93    |
+|       |         |               |  organs   |  `ts2d-v1-ep4000b2_organs`   |   0.78    |
+|       |         |               |   ribs    |   `ts2d-v1-ep4000b2_ribs`    |   0.89    |
+|       |         |               | vertebrae | `ts2d-v1-ep4000b2_vertebrae` |   0.90    |
+|       |         |   ep10000b2   |   bones   |  `ts2d-v1-ep10000b2_bones`   |   0.88    |
+|       |         |               |   soft    |   `ts2d-v1-ep10000b2_soft`   |   0.81    |
 
 
 Models are specified using a key (e.g., `ts2d`), which can resolve to one or more model IDs (e.g., `ts2d-v1-ep4000b2_organs`).  
