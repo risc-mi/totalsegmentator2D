@@ -2,14 +2,15 @@ import glob
 import os
 import pytest
 
+from ts2d.core.inference.database import URLDataBase
 from ts2d.core.inference.zoo import NNUZoo
-from ts2d.core.util.config import get_test_model_single
+from ts2d.core.util.config import get_test_model_single, get_shared_urls
 from ts2d.core.util.temp import SafeTemporaryDirectory
 
 
 @pytest.fixture
 def zoo():
-    yield NNUZoo()
+    yield NNUZoo(remote=URLDataBase(get_shared_urls(fetch_from_repo=False)))
 
 def test_download(zoo):
     remote = zoo.remote
@@ -25,4 +26,4 @@ def test_download(zoo):
 
 def test_zoo(zoo):
     key = get_test_model_single()
-    zoo.access(key)
+    zoo.resolve(key)
