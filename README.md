@@ -2,8 +2,8 @@
 
 > ⚡ **Latest Updates**  
 > - **2025-08-26**: v1.1.0 released → includes models pretrained on the **TotalSegmentator v2.0.1** 
-> - **2025-07-31**: v1.0.0 released → includes **MIUA2025a TS2D models** pretrained on the **TotalSegmentator v1.0** dataset
-> - 🚧 **Coming soon**: TSXR — X-Ray segmentation models (see [MIUA2025b])
+> - **2025-07-31**: v1.0.0 released → includes **\[MIUA2025a\] TS2D models** pretrained on the **TotalSegmentator v1.0** dataset
+> - 🚧 **Coming soon**: TSXR — X-Ray segmentation models, see **\[MIUA2025b\]**
 
 ## What is TS2D?
 
@@ -20,7 +20,7 @@ It adapts [TotalSegmentator (3D)](https://github.com/wasserth/TotalSegmentator) 
 - Body-region segmentation and detection in CT scans.
 - X-ray analysis (coming soon)  
 
-<img src="assets/method.png" alt="Overview of our method." style="max-width: 800px; width: 100%;">
+<img src="https://github.com/risc-mi/totalsegmentator2D/raw/main/assets/method.png" alt="Overview of our method." style="max-width: 800px; width: 100%;">
 
 _Figure 1: Standard CT workflow. Volumetric scans and ground-truth labels are projected onto the coronal plane to train five specialized 2D U-Net models. These models enable fast and efficient inference of 2D anatomical labels for any projected CT scan._
 
@@ -32,9 +32,9 @@ output and thus correctly handle overlapping structures (see Figure 1).
 Pretrained models for both version 1 and version 2 of TotalSegmentator are available. Version 2 supports segmentation of 117 anatomical labels.
 The segmentation task was distributed across five specialized models, each focused on a distinct group of anatomical structures (see Figure 2).
 
-<img src="assets/examples.png" alt="Example segmentation results." style="max-width: 800px; width: 100%;">
+<img src="https://github.com/risc-mi/totalsegmentator2D/raw/main/assets/examples.png" alt="Example segmentation results." style="max-width: 800px; width: 100%;">
 
-_Figure 2: Segmentation results for the five anatomical group models used with the default TS2D configuration (ts2d-v2-ep4000b2), along with the combined output (Patient s0616).
+_Figure 2: Segmentation results for the five anatomical group models used with the default TS2D configuration (ts2d-v2-ep4000b2), along with the combined output (Patient s0616)._
 
 TS2D was evaluated using projected ground-truth labels and its performance was compared to the original TotalSegmentator tool (TS3D), with both methods' inference results projected to 2D for consistency.
 A comprehensive comparison can be found in our publication \[MIUA2025a\].
@@ -44,7 +44,7 @@ A comprehensive comparison can be found in our publication \[MIUA2025a\].
 | TS2D (Ours) | 0.86    | 0.90            | 0.81                  |         **0.5-0.9 secs**         |
 |    TS3D     | 0.97    | 0.97            | 0.97                  |           43–146 secs            |
 
-_Note_: The table shows results for the TotalSegmentator v1 dataset to ensure comparability with the original TS3D publication.
+_Note: The table shows results for the TotalSegmentator v1 dataset to ensure comparability with the original TS3D publication._
 
 
 ## Usage
@@ -80,80 +80,23 @@ TS2D will project the input image, run the segmentation models and save a multil
 The segmentation labels can be parsed from the metadata, to view the segmentation use e.g. 3D Slicer to view the results.
 For more information, refer to the CLI help or the API documentation.
 
-### Model overview
+### Default Models
+By default, TS2D uses the model key **`ts2d-v2`**, which refers to models trained on the **TotalSegmentator v2.0.1** dataset.
 
-The following models are available in TS2D have been published and can be specified using the `--model` argument in the CLI or the `key` parameter in the API:
+- **`ts2d-v2`** → pretrained on v2.0.1 dataset (117 labels)  
+- **`ts2d-v1`** → pretrained on v1.0 dataset (104 labels)  
 
-| Model | Dataset | Configuration |   Group   |          Model ID          | Test Dice |
-|:-----:|:-------:|:-------------:|:---------:|:--------------------------:|:---------:|
-| TS2D  | v2.0.1  |   ep4000b2    |  cardiac  |  `ts2d-v2-ep4000b2_cardiac`  |   0.72    |
-|       |         |               |  muscles  |  `ts2d-v2-ep4000b2_muscles`  |   0.96    |
-|       |         |               |  organs   |  `ts2d-v2-ep4000b2_organs`   |   0.78    |
-|       |         |               |   ribs    |   `ts2d-v2-ep4000b2_ribs`    |   0.88    |
-|       |         |               | vertebrae | `ts2d-v2-ep4000b2_vertebrae` |   0.88    |
-|       | v1.0.0  |   ep4000b2    |  cardiac  |  `ts2d-v1-ep4000b2_cardiac`  |   0.77    |
-|       |         |               |  muscles  |  `ts2d-v1-ep4000b2_muscles`  |   0.93    |
-|       |         |               |  organs   |  `ts2d-v1-ep4000b2_organs`   |   0.78    |
-|       |         |               |   ribs    |   `ts2d-v1-ep4000b2_ribs`    |   0.89    |
-|       |         |               | vertebrae | `ts2d-v1-ep4000b2_vertebrae` |   0.90    |
-|       |         |   ep10000b2   |   bones   |  `ts2d-v1-ep10000b2_bones`   |   0.88    |
-|       |         |               |   soft    |   `ts2d-v1-ep10000b2_soft`   |   0.81    |
+➡️ See [Available Models](doc/available_models.md) for a full list and instructions on selecting specific sub-models.
 
+### Performance Evaluation
 
-Models are specified using a key (e.g., `ts2d`), which can resolve to one or more model IDs (e.g., `ts2d-v1-ep4000b2_organs`).  
-A model ID follows the structure `<model>-<dataset>-<configuration>_<group>`. For example, `ts2d-v1-ep4000b2_organs` refers to the TS2D model trained on the TotalSegmentator v1 dataset, with 4000 epochs, batch size 2, for the organ group.  
-Model keys can be abbreviated to match multiple models; for instance, `ts2d-v1-ep4000b2` includes all anatomical groups in that configuration. If only `ts2d` is specified, the default models are used (cardiac, muscles, organs, ribs and vertebrae).
-
-TS2D runs all models matching the specified key and merges their outputs into a single segmentation.  
-The default model key is `ts2d-v2-ep4000b2`, which includes the five anatomical group models in this configuration.
-
-Example model keys and their resolved model IDs:
-
-<table>
-  <thead>
-    <tr>
-      <th>Key</th>
-      <th>Resolved model ID(s)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>
-        <code>ts2d</code> or<br>
-        <code>ts2d-v2</code> or<br>
-        <code>ts2d-v2-ep4000b2</code>
-      </td>
-      <td>
-        <code>ts2d-v2-ep4000b2_cardiac</code>,<br>
-        <code>ts2d-v2-ep4000b2_muscles</code>,<br>
-        <code>ts2d-v2-ep4000b2_organs</code>,<br>
-        <code>ts2d-v2-ep4000b2_ribs</code>,<br>
-        <code>ts2d-v2-ep4000b2_vertebrae</code></td>
-    </tr>
-    <tr>
-      <td>
-<code>ts2d_cardiac</code> or<br>
-<code>ts2d-v2_cardiac</code>
-</td>
-      <td><code>ts2d-v2-ep4000b2_cardiac</code>
-</td>
-    </tr>
-    <tr>
-      <td><code>ts2d-v1</code></td>
-      <td>
-        <code>ts2d-v1-ep4000b2_cardiac</code>,<br>
-        <code>ts2d-v1-ep4000b2_muscles</code>,<br>
-        <code>ts2d-v1-ep4000b2_organs</code>,<br>
-        <code>ts2d-v1-ep4000b2_ribs</code>,<br>
-        <code>ts2d-v1-ep4000b2_vertebrae</code>
-</td>
-    </tr>
-    <tr>
-      <td><code>ts2d_bones</code></td>
-      <td><code>ts2d-v1-ep10000b2_bones</code></td>
-    </tr>
-  </tbody>
-</table>
+The images below illustrate segmentation results for bone tissue (left) and soft tissue (right) using the `ts2d-v2` models.
+Dice Similarity Coefficients (DSC) are reported for all 117 anatomical structures, sorted from highest to lowest median DSC.
+TS2D is recommended for bone tissue and most soft tissue structures; however, caution is advised for smaller soft tissue structures with lower DSC values.
+<p align="center">
+  <img src="https://github.com/risc-mi/totalsegmentator2D/raw/main/assets/dsc-bones.png" alt="DSC Bones" style="display:inline-block; width:48%; max-width:300px;" />
+  <img src="https://github.com/risc-mi/totalsegmentator2D/raw/main/assets/dsc-soft.png" alt="DSC Soft Tissue" style="display:inline-block; width:48%; max-width:300px;" />
+</p>
 
 ## Publications
 
@@ -189,11 +132,17 @@ TotalSegmentator 2D builds upon two key works in the field of medical image segm
 
 If you have any inquiries, please open a GitHub issue.
 
+## Links
+
+[GitHub](https://github.com/risc-mi/totalsegmentator2D) · [PyPI](https://pypi.org/project/ts2d/) · [Zenodo](https://zenodo.org/records/16985939) · [RISC Software GmbH](https://www.risc-software.at/)
+
 ## Acknowledgements
 
 <div style="background-color:white;padding: 1em">
-<img src="assets/risc.svg" height="50px"  />
-<img src="assets/grants.svg" height="50px"  />
+<img src="The images below illustrate segmentation results for bone tissue (left) and soft tissue (right) using the `ts2d-v2` models.
+Dice Similarity Coefficients (DSC) are reported for all 117 anatomical structures, sorted from highest to lowest median DSC.
+TS2D is recommended for bone tissue and most soft tissue structures; however, caution is advised for smaller soft tissue structures with lower DSC values.risc.svg" height="50px"  />
+<img src="https://github.com/risc-mi/totalsegmentator2D/raw/main/assets/grants.svg" height="50px"  />
 </div>
 
 This project is financed by research subsidies granted by the government of Upper Austria. RISC Software GmbH is Member of UAR (Upper Austrian Research) Innovation Network.
