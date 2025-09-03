@@ -212,6 +212,8 @@ class URLDataBase(DataBase):
             with SafeTemporaryDirectory() as temp:
                 temp_zip = os.path.join(temp, f'{subkey}.zip')
                 gdown.download(url, output=temp_zip, quiet=False, fuzzy=True)
+                if not os.path.exists(temp_zip):
+                    raise RuntimeError("Download failed for url: {}".format(url))
                 with zipfile.ZipFile(temp_zip, 'r') as zip_ref:
                     zip_ref.extractall(dest_root)
 

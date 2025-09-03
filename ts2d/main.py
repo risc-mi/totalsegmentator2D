@@ -87,7 +87,7 @@ def ts2d_entry_point():
     parser = argparse.ArgumentParser(description="Runs TotalSegmentator2D (TS2D) on images or directories of images to automatically segment anatomical structures.")
     parser.add_argument("--src", "-i", "--input", type=str, help="Input image file or directory. Supported formats are: nrrd, nii, nii.gz, mha, mhd", required=True)
     parser.add_argument("--dest", "-o", "--output", type=str, help="Output directory for results.", required=True)
-    parser.add_argument("--model", type=str, default=None, help="Model key for prediction, defaults to 'ts2d-v1-ep4000b2'.")
+    parser.add_argument("--model", type=str, default=None, help="Model key for prediction, defaults to 'ts2d-v2-ep4000b2'.")
     parser.add_argument("--no-remote", action="store_true", help="Disable remote model download. Models must be available locally.")
     parser.add_argument("--no-fetch", action="store_true", help="Disable to not fetch the latest model URLs from the remote repository and use the local shared.json instead.")
     parser.add_argument("--collapse", action="store_true", help="Collapse projected images to 2D. This removes the 3D geometrical information.")

@@ -4,6 +4,7 @@
   "default-test-model-multi": "ts2d-v2-ep4000b2",
   "default-resolve": {
     "ts2d": "ts2d-v2",
-    "ts2d-v1": "ts2d-v2-ep4000b2"
+    "ts2d-v2": "ts2d-v2-ep4000b2",
+    "ts2d-v1": "ts2d-v1-ep4000b2"
   }
 }
