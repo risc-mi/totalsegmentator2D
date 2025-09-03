@@ -66,14 +66,15 @@ class NNUZoo:
             key = map[key]
 
         db = default(self.remote, self.local)
-        if unique_model:
+        ids = db.ids(key=key)
+        if len(ids) > 1 and unique_model:
             # take the first unique model for the key
             models = sorted(db.models(key=key))
             if not models:
                 raise RuntimeError(f"No models resolved for key '{key}'")
             model = models[0]
             return db.ids(model=model)
-        return db.ids(key=key)
+        return ids
 
 
     def access(self, id: str, revision: int | str | None =None) -> dict:
