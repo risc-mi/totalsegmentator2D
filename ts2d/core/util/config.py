@@ -58,6 +58,9 @@ def get_default_model():
 def get_test_model_single():
     return get_config()['default-test-model-single']
 
+def get_test_model_single_xr():
+    return get_config()['default-test-model-single-xr']
+
 def get_test_model_multi():
     return get_config()['default-test-model-multi']
 

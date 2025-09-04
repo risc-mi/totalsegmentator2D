@@ -64,6 +64,12 @@ def project(img: sitk.Image, mode='max', axis: int | str = -1) -> sitk.Image:
     axis = axis_name_to_index(axis) if isinstance(axis, str) else list(range(img.GetDimension()))[axis]
     mode = str(mode).lower().strip()
     mode, *param = f'{mode}:'.split(':')[:-1]
+
+    def _raise_xr_not_supported(*args, **kwargs):
+        raise NotImplementedError(
+            "Synthetic XR projection from 3D images is not supported. "
+            "Open an issue to request this feature for a future release."
+        )
     op = {
         'first': lambda x: _project_first(x, axis=axis),
         'max': sitk.MaximumProjectionImageFilter,
@@ -75,7 +81,8 @@ def project(img: sitk.Image, mode='max', axis: int | str = -1) -> sitk.Image:
         'std': sitk.StandardDeviationProjectionImageFilter,
         'depth': lambda x: _project_first(x, axis=axis),
         'multiclass': lambda x: _project_multiclass(x, num=param[0], axis=axis),
-        'slice': lambda x: _extract_slice(x, pos=param[0], axis=axis)
+        'slice': lambda x: _extract_slice(x, pos=param[0], axis=axis),
+        'xr': _raise_xr_not_supported
     }.get(mode, None)
 
     if op is None:

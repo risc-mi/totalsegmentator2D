@@ -2,10 +2,11 @@ from time import time, sleep
 
 from test.utils import get_asset_path
 from ts2d import TS2D
-from ts2d.core.util.config import get_test_model_single
+from ts2d.core.util.config import get_test_model_single, get_test_model_single_xr
 from ts2d.core.util.image import read_image
 import SimpleITK as sitk
 import pytest
+
 
 @pytest.fixture
 def model():
@@ -13,6 +14,15 @@ def model():
     model = TS2D(key=key, fetch_remote=False)
     yield model
     model.close()
+
+
+@pytest.fixture
+def model_xr():
+    key = get_test_model_single_xr()
+    model_xr = TS2D(key=key, fetch_remote=False)
+    yield model_xr
+    model_xr.close()
+
 
 def _general_test(model: TS2D, sample_name: str):
     fp = get_asset_path(sample_name)
@@ -27,11 +37,20 @@ def _general_test(model: TS2D, sample_name: str):
     assert res is not None, "The prediction failed!"
     assert isinstance(res.get_segmentation(), sitk.Image), "Prediction contains no segmentation image!"
 
+
 def test_2d_sample(model):
     """
     basic test for a 2D sample, which has already been projected
     """
     _general_test(model, 'sample_s0332.nrrd')
+
+
+def test_xr_sample(model_xr):
+    """
+    basic test for a 2D sample, which has already been projected
+    """
+    _general_test(model_xr, 'sample_chexpert.nrrd')
+
 
 def test_3d_sample(model):
     """

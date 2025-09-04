@@ -1,6 +1,7 @@
 {
   "default-model": "ts2d-v2-ep4000b2",
   "default-test-model-single": "ts2d-v2-ep4000b2_cardiac",
+  "default-test-model-single-xr": "tsxr-v2-ep1000b2_ribs",
   "default-test-model-multi": "ts2d-v2-ep4000b2",
   "default-resolve": {
     "ts2d": "ts2d-v2",

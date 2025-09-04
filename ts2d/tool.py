@@ -23,8 +23,8 @@ class TS2D:
         """
         Initialize the TS2D instance with the specified model key.
         :param key: the model key to use, defaults to "ts2d"
-        :param use_remote: whether to allow the use of remote models, defaults to True. If False, only local models will be used.
-        :param fetch_remote: whether to fetch the latest URLs from the repository (shared.json) instead of the locally checked out version
+        :param use_remote: whether to allow the use of remote models from Zenodo, defaults to True. If False, only local models will be used.
+        :param fetch_remote: whether to fetch the latest URLs from the GitHub main repository (shared.json) instead of the locally checked out version
         """
         colors = get_label_colors()
         param = {
@@ -37,6 +37,9 @@ class TS2D:
         self.zoo = NNUZoo(remote=remote)
         self.models = dict()
         ids = self.zoo.resolve(key, unique_model=True)
+        if not ids:
+            raise RuntimeError(f"No models were resolved for key: {key}")
+
         if len(ids) > 1:
             log(f"The model key '{key}' was resolved to {len(ids)} models: {', '.join(ids)}.")
         for id in ids:
@@ -231,7 +234,7 @@ class TS2D:
 
         def save(self,
                  dest: str, name: str = 'result', ext: str = 'nrrd',
-                 models: str | List[str] = 'all',
+                 models: str | List[str] = 'final',
                  targets: str | List[str] = 'all',
                  content: str = 'all',
                  naming: str = 'group'):
