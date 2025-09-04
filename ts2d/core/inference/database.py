@@ -6,7 +6,6 @@ import tempfile
 import zipfile
 from glob import glob
 from typing import Optional
-import dload
 import gdown
 
 from ts2d.core.util.log import warn, log

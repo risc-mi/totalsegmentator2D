@@ -21,7 +21,6 @@ dependencies = [
     "simpleitk~=2.5.2",
     "pandas~=2.3.1",
     "gdown~=5.2.0",
-    "dload==0.6",
     "psutil~=7.0",
     "nnunetv2ml==2.6.2",
 ]

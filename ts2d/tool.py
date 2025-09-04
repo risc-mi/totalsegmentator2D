@@ -245,7 +245,7 @@ class TS2D:
             :param ext: the file extension for the output files, defaults to 'nrrd' (does not affect PNG visualizations)
             :param targets: one or many targets to export, can be a list or 'all', 'input', 'segmentation', 'projection'
             :param models: one or many model ids to export, can be 'all' to export all models, 'final' refers to the final combined target
-            :param content: export type, can be 'file', 'visual' or 'all', defaults to 'file'
+            :param content: export content type, can be 'file', 'visual' or 'all', defaults to 'file'
             :param naming: the naming scheme to use for the output files, can be 'group' or 'model'
             """
             assert ext.lower() != 'png', "PNG is not a valid export format for the 'file' content type."
