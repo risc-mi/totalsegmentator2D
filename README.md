@@ -3,7 +3,8 @@
 > ⚡ **Latest Updates**  
 > - **2025-08-26**: v1.1.0 released → includes models pretrained on the **TotalSegmentator v2.0.1** 
 > - **2025-07-31**: v1.0.0 released → includes **\[MIUA2025a\] TS2D models** pretrained on the **TotalSegmentator v1.0** dataset
-> - 🚧 **Coming soon**: TSXR — X-Ray segmentation models, see **\[MIUA2025b\]**
+> - ✅ Added TSXR models: X-Ray segmentation models, see **\[MIUA2025b\]**
+> - 🚧 Coming soon: TSXR documentation & how-tos 
 
 ## What is TS2D?
 
@@ -13,12 +14,12 @@ It adapts [TotalSegmentator (3D)](https://github.com/wasserth/TotalSegmentator) 
 - ⚡ **Rapid inference** (results in less than a second, compared to several minutes for 3D methods)
 - 💻 **Low GPU/CPU requirements**  
 - 🧠 **Accurate segmentation** of 117 anatomical structures (see `ts2d-v2` models)
-- 🩻 **Segmentation of native 2D X-ray scans** (see the upcoming `tsxr` models)
+- 🩻 **Segmentation of native 2D X-ray scans** (see the `tsxr` models)
 
 **Use cases include**:
 - Anatomical structure segmentation and analysis in CT images.
 - Body-region segmentation and detection in CT scans.
-- X-ray analysis (coming soon)  
+- X-ray image segmentation
 
 <img src="https://github.com/risc-mi/totalsegmentator2D/raw/main/assets/method.png" alt="Overview of our method." style="max-width: 800px; width: 100%;">
 
@@ -76,15 +77,19 @@ with TS2D() as model:
     result.save(dest='<output_directory>')
 ```
 
-TS2D will project the input image, run the segmentation models and save a multilabel segmentation file to the output directory.
-The segmentation labels can be parsed from the metadata, to view the segmentation use e.g. 3D Slicer to view the results.
-For more information, refer to the CLI help or the API documentation.
+For CT scans, TS2D will project the input 3D image, run the segmentation models and save a multilabel segmentation file to 
+the output directory. The segmentation labels can be parsed from the metadata, to view the segmentation use e.g. 3D Slicer
+to view the results. For more information, refer to the CLI help or the API documentation.
+
+For X-ray images, no projection is required and everything is just the same.
+Simply specify the correct model key `tsxr` either through CLI or the API interface.
 
 ### Default Models
 By default, TS2D uses the model key **`ts2d-v2`**, which refers to models trained on the **TotalSegmentator v2.0.1** dataset.
 
 - **`ts2d-v2`** → pretrained on v2.0.1 dataset (117 labels)  
-- **`ts2d-v1`** → pretrained on v1.0 dataset (104 labels)  
+- **`ts2d-v1`** → pretrained on v1.0 dataset (104 labels)
+- **`tsxr-v2`** → pretrained on synthetic projections of v2.0.1 dataset (117 labels)
 
 ➡️ See [Available Models](doc/available_models.md) for a full list and instructions on selecting specific sub-models.
 
