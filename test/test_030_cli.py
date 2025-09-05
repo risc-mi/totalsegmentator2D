@@ -25,6 +25,17 @@ def test_single_default():
         assert ret == 0, f"The CLI command failed with a non-zero exit code: {ret}"
         assert_exist([f"{sample}.seg.nrrd"], dir=tmp)
 
+
+def test_single_default_xr():
+    sample = "sample_chexpert"
+    with TemporaryDirectory() as tmp:
+        fp = get_asset_path(f"{sample}.nrrd")
+        # resolves model locally
+        ret = os.system(f"ts2d -i {fp} -o {tmp} --model tsxr --no-fetch")
+        assert ret == 0, f"The CLI command failed with a non-zero exit code: {ret}"
+        assert_exist([f"{sample}.seg.nrrd"], dir=tmp)
+
+
 def test_single_full():
     sample = "sample_s0521"
     with TemporaryDirectory() as tmp:
