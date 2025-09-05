@@ -156,3 +156,4 @@ This project is financed by research subsidies granted by the government of Uppe
 
 - v1.0.0: first release of TS2D including the [MIUA2025a] models.
 - v1.1.0: added models trained on the TotalSegmentator v2 dataset
+- v1.2.0 added TSXR models trained on DiffDRR reconstructions of the TotalSegmentator v2 dataset
