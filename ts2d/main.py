@@ -63,9 +63,14 @@ def ts2d_run(src: str,
     log(f"\n{bar}\n"
         "TS2D is a research tool. It is NOT validated for clinical use and should NOT be used for medical diagnosis or treatment.\n"
         "Please cite the following paper when using TS2D:\n"
-        "Sabrowsky-Hirsch, B., Alshenoudy, A., Thumfart, S., & Giretzlehner, M. (2025, July). "
-        "TotalSegmentator 2D: A Tool for Rapid Anatomical Structure Analysis. "
-        "In Annual Conference on Medical Image Understanding and Analysis (pp. 32-43). Cham: Springer Nature Switzerland.\n"
+        "Sabrowsky-Hirsch, B., Alshenoudy, A., Thumfart, S., & Giretzlehner, M. (2025, July). \n"
+        "TotalSegmentator 2D: A Tool for Rapid Anatomical Structure Analysis. \n"
+        "In Annual Conference on Medical Image Understanding and Analysis (pp. 32-43). Cham: Springer Nature Switzerland.\n\n"
+        
+        "If you're using TSXR, please also cite the following paper: \n"
+        "Alshenoudy, A., Sabrowsky-Hirsch, B., Thumfart, S., & Giretzlehner, M. (2025, July). \n"
+        "Leveraging Synthetic Data for Whole-Body Segmentation in X-Ray Images. \n"
+        "In Annual Conference on Medical Image Understanding and Analysis (pp. 145–158). Cham: Springer Nature Switzerland.\n"
         f"{bar}\n")
 
     with TS2D(key=model, use_remote=use_remote, fetch_remote=fetch_remote) as model:
